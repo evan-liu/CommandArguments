@@ -14,6 +14,35 @@ public class Option {
     }
 }
 
+/// `Bool` flags
+public class BoolOption: Option {
+    public var value: Bool = false
+}
+
+extension BoolOption: Parsable {
+    class BoolParser: Parser {
+        let option: BoolOption
+        init(option: BoolOption) {
+            self.option = option
+        }
+        
+        var canTakeValue = true
+        func parseValue(_ value: String) {
+            option.value = value == "true"
+            canTakeValue = false
+        }
+        func finishParsing() {
+            if canTakeValue && !option.value {
+                option.value = true
+            }
+        }
+    }
+    
+    var parser: Parser {
+        return BoolParser(option: self)
+    }
+}
+
 public class StringOption: Option {
     public var value: String
     
