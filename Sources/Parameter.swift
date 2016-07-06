@@ -85,6 +85,7 @@ extension OptionalParameter: Parsable {
         init(parameter: OptionalParameter) {
             self.parameter = parameter
         }
+        
         var canTakeValue: Bool {
             return parameter.value == nil
         }
@@ -116,8 +117,9 @@ extension VariadicParameter: Parsable {
         init(parameter: VariadicParameter) {
             self.parameter = parameter
         }
+        
         var canTakeValue: Bool {
-            if let maxCount = parameter.maxCount {
+            if let maxCount = parameter.maxCount where maxCount > 0 {
                 return parameter.value.count < maxCount
             } else {
                 return true

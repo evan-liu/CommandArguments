@@ -44,12 +44,7 @@ extension BoolOption: Parsable {
 }
 
 public class StringOption: Option {
-    public var value: String
-    
-    public init(longName: String? = nil, shortName: String? = nil, usage: String? = nil, `default`: String = "") {
-        value = `default`
-        super.init(longName: longName, shortName: shortName, usage: usage)
-    }
+    public var value: String!
 }
 
 extension StringOption: Parsable {
@@ -59,14 +54,120 @@ extension StringOption: Parsable {
             self.option = option
         }
         
-        var canTakeValue = true
+        var canTakeValue: Bool {
+            return option.value == nil
+        }
         func parseValue(_ value: String) {
             option.value = value
-            canTakeValue = false
+        }
+        func finishParsing() throws {
+            guard !canTakeValue else {
+                throw ParseError.missingRequiredOption(option)
+            }
         }
     }
     
     var parser: Parser {
         return StringParser(option: self)
+    }
+}
+
+public class MultiStringOption: Option {
+    public var value = [String]()
+    public let count: Int
+    
+    public init(count: Int, longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        self.count = count
+        super.init(longName: longName, shortName: shortName, usage: usage)
+    }
+}
+
+extension MultiStringOption: Parsable {
+    class MultiStringOptionParser: Parser {
+        let option: MultiStringOption
+        init(option: MultiStringOption) {
+            self.option = option
+        }
+        
+        var canTakeValue: Bool {
+            return option.value.count < option.count
+        }
+        func parseValue(_ value: String) {
+            option.value.append(value)
+        }
+        func finishParsing() throws {
+            guard !canTakeValue else {
+                throw ParseError.missingRequiredOption(option)
+            }
+        }
+    }
+    
+    var parser: Parser {
+        return MultiStringOptionParser(option: self)
+    }
+}
+
+public class OptionalStringOption: Option {
+    public var value: String?
+}
+
+extension OptionalStringOption: Parsable {
+    class OptionalStringParser: Parser {
+        let option: OptionalStringOption
+        init(option: OptionalStringOption) {
+            self.option = option
+        }
+        
+        var canTakeValue: Bool {
+            return option.value == nil
+        }
+        func parseValue(_ value: String) {
+            option.value = value
+        }
+    }
+    
+    var parser: Parser {
+        return OptionalStringParser(option: self)
+    }
+}
+
+public class VariadicStringOption: Option {
+    public var value = [String]()
+    public let minCount: Int?
+    public let maxCount: Int?
+    
+    public init(minCount: Int? = nil, maxCount: Int? = nil, longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        self.minCount = minCount
+        self.maxCount = maxCount
+        super.init(longName: longName, shortName: shortName, usage: usage)
+    }
+}
+
+extension VariadicStringOption: Parsable {
+    class VariadicStringParser: Parser {
+        let option: VariadicStringOption
+        init(option: VariadicStringOption) {
+            self.option = option
+        }
+        
+        var canTakeValue: Bool {
+            if let maxCount = option.maxCount where maxCount > 0 {
+                return option.value.count < maxCount
+            } else {
+                return true
+            }
+        }
+        func parseValue(_ value: String) {
+            option.value.append(value)
+        }
+        func finishParsing() throws {
+            if let minCount = option.minCount where minCount > option.value.count {
+                throw ParseError.missingRequiredOption(option)
+            }
+        }
+    }
+    
+    var parser: Parser {
+        return VariadicStringParser(option: self)
     }
 }

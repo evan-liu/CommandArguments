@@ -15,6 +15,8 @@ public enum ParseError: ErrorProtocol {
     
     case invalidOption(String)
     
+    case missingRequiredOption(Option)
+    
     case invalidParameter(String)
     
     case missingRequiredParameter(Parameter)
