@@ -38,6 +38,7 @@ extension CommandArguments {
             if let value = value {
                 try parser.parseValue(value)
                 if !parser.canTakeValue {
+                    try parser.finishParsing()
                     activeOptionParser = nil
                 }
             } else {
@@ -48,7 +49,7 @@ extension CommandArguments {
         
         func activateOption(withName name: String) throws {
             guard let parser = optionParsers[name] else {
-                throw ParseError.invalidOption
+                throw ParseError.invalidOption(name)
             }
             activeOptionParser = parser
         }
@@ -74,6 +75,23 @@ extension CommandArguments {
             }
         }
         
+        func parseShortOption(_ characters: String.CharacterView) throws {
+            if characters.contains("=") {
+                return try parseOptionWithEquals(characters)
+            }
+            
+            // -x: wait for next arg
+            if characters.count == 1 {
+                return try activateOption(withName: String(characters))
+            }
+            
+            // -abc: a=true, b=true, c=true
+            try characters.forEach {
+                try activateOption(withName: String($0))
+                try checkActiveOption()
+            }
+        }
+        
         for i in startIndex..<args.endIndex {
             var arg = args[i]
             var characters = arg.characters
@@ -95,7 +113,7 @@ extension CommandArguments {
             
             // `-x`
             if characters.first != "-" {
-                // TODO parseShortOption(characters)
+                try parseShortOption(characters)
                 continue
             }
             

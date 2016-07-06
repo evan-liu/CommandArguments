@@ -1,7 +1,7 @@
 import Foundation
 
 public enum ParseError: ErrorProtocol {
-    case invalidOption
+    case invalidOption(String)
 }
 
 protocol Parsable: class {

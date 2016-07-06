@@ -32,7 +32,7 @@ extension BoolOption: Parsable {
             canTakeValue = false
         }
         func finishParsing() {
-            if canTakeValue && !option.value {
+            if canTakeValue { // -x or --yz without values
                 option.value = true
             }
         }
