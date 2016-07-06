@@ -4,13 +4,13 @@ public protocol CommandArguments {
     init()
     
     mutating func parse<T: Collection where T.Iterator.Element == String, T.Index == Int>
-    (args: T, from startIndex: Int) throws
+    (_ args: T, from startIndex: Int?) throws
 }
 
 extension CommandArguments {
     
     public mutating func parse<T: Collection where T.Iterator.Element == String, T.Index == Int>
-        (args: T, from startIndex: Int = 0) throws {
+        (_ args: T, from startIndex: Int? = nil) throws {
         
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         
@@ -192,6 +192,7 @@ extension CommandArguments {
             }
         }
         
+        let startIndex = startIndex ?? args.startIndex
         for i in startIndex..<args.endIndex {
             var arg = args[i]
             var characters = arg.characters

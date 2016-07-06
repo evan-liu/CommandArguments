@@ -10,7 +10,7 @@ class ParameterTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["x", "y"])
+        try! args.parse(["x", "y"])
         
         XCTAssertEqual(args.a.name, "a")
         XCTAssertEqual(args.b.name, "b")
@@ -23,7 +23,7 @@ class ParameterTests: XCTestCase {
         }
         var args = TestArgs()
         do {
-            try args.parse(args: [])
+            try args.parse([])
             XCTFail()
         } catch TypeError.duplicatedParameterName(_) {
         } catch { XCTFail() }
@@ -36,7 +36,7 @@ class ParameterTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["x", "y"])
+        try! args.parse(["x", "y"])
         
         XCTAssertEqual(args.a.value, "x")
         XCTAssertEqual(args.b.value, "y")
@@ -49,7 +49,7 @@ class ParameterTests: XCTestCase {
         
         var args = TestArgs()
         do {
-            try args.parse(args: [])
+            try args.parse([])
             XCTFail()
         } catch ParseError.missingRequiredParameter(_) {
         } catch { XCTFail() }
@@ -62,7 +62,7 @@ class ParameterTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["1", "2", "3", "4", "5"])
+        try! args.parse(["1", "2", "3", "4", "5"])
         
         XCTAssertEqual(args.a.value, ["1", "2"])
         XCTAssertEqual(args.b.value, ["3", "4", "5"])
@@ -75,14 +75,14 @@ class ParameterTests: XCTestCase {
         
         var args1 = TestArgs()
         do {
-            try args1.parse(args: ["1"])
+            try args1.parse(["1"])
             XCTFail()
         } catch ParseError.missingRequiredParameter(_) {
         } catch { XCTFail() }
         
         var args2 = TestArgs()
         do {
-            try args2.parse(args: ["1", "2", "3"])
+            try args2.parse(["1", "2", "3"])
             XCTFail()
         } catch ParseError.invalidParameter(_) {
         } catch { XCTFail() }
@@ -95,11 +95,11 @@ class ParameterTests: XCTestCase {
         }
         
         var args1 = TestArgs()
-        try! args1.parse(args: ["1"])
+        try! args1.parse(["1"])
         XCTAssertNil(args1.b.value)
         
         var args2 = TestArgs()
-        try! args2.parse(args: ["1", "2"])
+        try! args2.parse(["1", "2"])
         XCTAssertEqual(args2.b.value, "2")
     }
     
@@ -110,7 +110,7 @@ class ParameterTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["1", "2", "3", "4"])
+        try! args.parse(["1", "2", "3", "4"])
         XCTAssertEqual(args.b.value, ["2", "3", "4"])
     }
     
@@ -121,14 +121,14 @@ class ParameterTests: XCTestCase {
         
         var args1 = TestArgs()
         do {
-            try args1.parse(args: ["1"])
+            try args1.parse(["1"])
             XCTFail()
         } catch ParseError.missingRequiredParameter(_) {
         } catch { XCTFail() }
         
         var args2 = TestArgs()
         do {
-            try args2.parse(args: ["1", "2", "3", "4"])
+            try args2.parse(["1", "2", "3", "4"])
             XCTFail()
         } catch ParseError.invalidParameter(_) {
         } catch { XCTFail() }
@@ -142,7 +142,7 @@ class ParameterTests: XCTestCase {
         
         var args = TestArgs()
         do {
-            try args.parse(args: ["1"])
+            try args.parse(["1"])
             XCTFail()
         } catch ParseError.missingRequiredParameter(_) {
         } catch { XCTFail() }

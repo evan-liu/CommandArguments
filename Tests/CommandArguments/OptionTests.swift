@@ -12,7 +12,7 @@ class OptionTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: [
+        try! args.parse([
             "-a", "--bb",
             "-c", "x", "--dd=y"
             ])
@@ -31,7 +31,7 @@ class OptionTests: XCTestCase {
         }
         var longArgs = LongNames()
         do {
-            try longArgs.parse(args: [])
+            try longArgs.parse([])
             XCTFail()
         } catch TypeError.duplicatedOptionName(_) {
         } catch { XCTFail() }
@@ -42,7 +42,7 @@ class OptionTests: XCTestCase {
         }
         var shortArgs = ShortNames()
         do {
-            try shortArgs.parse(args: [])
+            try shortArgs.parse([])
             XCTFail()
         } catch TypeError.duplicatedOptionName(_) {
         } catch { XCTFail() }
@@ -54,7 +54,7 @@ class OptionTests: XCTestCase {
         }
         var shortArgs = ShortNames()
         do {
-            try shortArgs.parse(args: [])
+            try shortArgs.parse([])
             XCTFail()
         } catch TypeError.invalidShortOptionName(_) {
         } catch { XCTFail() }
@@ -68,7 +68,7 @@ class OptionTests: XCTestCase {
         
         var args = TestArgs()
         do {
-            try args.parse(args: [])
+            try args.parse([])
             XCTFail()
         } catch TypeError.missingOptionName(_) {
         } catch {
@@ -88,7 +88,7 @@ class OptionTests: XCTestCase {
         }
         
         var longNames = TestArgs()
-        try! longNames.parse(args: [
+        try! longNames.parse([
             "--aa",
             "--bb", "true", "--cc", "false",
             "--dd=true", "--ee=false", "--ff="
@@ -103,7 +103,7 @@ class OptionTests: XCTestCase {
         
         
         var shortNames = TestArgs()
-        try! shortNames.parse(args: [
+        try! shortNames.parse([
             "-a",
             "-b", "true", "-c", "false",
             "-d=true", "-e=false", "-f="
@@ -117,7 +117,7 @@ class OptionTests: XCTestCase {
         XCTAssertFalse(longNames.g.value)
         
         var combinedShortNames = TestArgs()
-        try! combinedShortNames.parse(args: ["-abd"])
+        try! combinedShortNames.parse(["-abd"])
         XCTAssertTrue(longNames.a.value)
         XCTAssertTrue(longNames.b.value)
         XCTAssertFalse(longNames.c.value)
@@ -135,7 +135,7 @@ class OptionTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: [
+        try! args.parse([
             "--aa", "xx", "--bb=yy",
             "-c", "x", "-d=y"
         ])
@@ -154,7 +154,7 @@ class OptionTests: XCTestCase {
         
         var args = TestArgs()
         do {
-            try args.parse(args: [])
+            try args.parse([])
             XCTFail()
         } catch ParseError.missingRequiredOption(_) {
         } catch {
@@ -169,7 +169,7 @@ class OptionTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: [
+        try! args.parse([
             "-a", "1", "2",
             "-b=3", "4", "5"
         ])
@@ -192,7 +192,7 @@ class OptionTests: XCTestCase {
         ].forEach {
             var args = TestArgs()
             do {
-                try args.parse(args: $0)
+                try args.parse($0)
                 XCTFail()
             } catch ParseError.missingRequiredOption(_) {
             } catch {
@@ -204,7 +204,7 @@ class OptionTests: XCTestCase {
         // More than count
         var args = TestArgs()
         do {
-            try args.parse(args: ["-a", "1", "2", "3", "4"])
+            try args.parse(["-a", "1", "2", "3", "4"])
             XCTFail()
         } catch ParseError.invalidParameter(_) {
         } catch { XCTFail() }
@@ -217,23 +217,23 @@ class OptionTests: XCTestCase {
         }
         
         var args1 = TestArgs()
-        try! args1.parse(args: ["-a=x"])
+        try! args1.parse(["-a=x"])
         XCTAssertNil(args1.b.value)
         
         var args2 = TestArgs()
-        try! args2.parse(args: ["-a=x", "-b"])
+        try! args2.parse(["-a=x", "-b"])
         XCTAssertNil(args2.b.value)
         
         var args3 = TestArgs()
-        try! args3.parse(args: ["-a=x", "-b="])
+        try! args3.parse(["-a=x", "-b="])
         XCTAssertEqual(args3.b.value, "")
         
         var args4 = TestArgs()
-        try! args4.parse(args: ["-a=x", "-b=4"])
+        try! args4.parse(["-a=x", "-b=4"])
         XCTAssertEqual(args4.b.value, "4")
         
         var args5 = TestArgs()
-        try! args5.parse(args: ["-a=x", "-b", "5"])
+        try! args5.parse(["-a=x", "-b", "5"])
         XCTAssertEqual(args5.b.value, "5")
     }
     
@@ -245,7 +245,7 @@ class OptionTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["-a=x", "-b", "1", "-c", "-b", "2", "3"])
+        try! args.parse(["-a=x", "-b", "1", "-c", "-b", "2", "3"])
         XCTAssertEqual(args.b.value, ["1", "2", "3"])
     }
     
@@ -262,7 +262,7 @@ class OptionTests: XCTestCase {
         ].forEach {
             var args = TestArgs()
             do {
-                try args.parse(args: $0)
+                try args.parse($0)
                 XCTFail()
             } catch ParseError.missingRequiredOption(_) {
             } catch { XCTFail() }
@@ -271,7 +271,7 @@ class OptionTests: XCTestCase {
         // More than maxCount
         var args = TestArgs()
         do {
-            try args.parse(args: ["-a", "1", "2", "3", "4", "5"])
+            try args.parse(["-a", "1", "2", "3", "4", "5"])
             XCTFail()
         } catch ParseError.invalidParameter(_) {
         } catch {
@@ -286,7 +286,7 @@ class OptionTests: XCTestCase {
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["-a", "--", "-1", "-2", "-3"])
+        try! args.parse(["-a", "--", "-1", "-2", "-3"])
         XCTAssertTrue(args.a.value)
         XCTAssertEqual(args.b.value, ["-1", "-2", "-3"])
     }
@@ -298,7 +298,7 @@ class OptionTests: XCTestCase {
         
         var args = TestArgs()
         do {
-            try args.parse(args: ["-a=b", "-c"])
+            try args.parse(["-a=b", "-c"])
             XCTFail()
         } catch ParseError.invalidOption(_) {
         } catch {
