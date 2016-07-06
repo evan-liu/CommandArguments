@@ -30,5 +30,12 @@ buildArgs.platform.value.forEach { platform in
 ```
 
 ```sh
-build ios android --config=buildConfig.json -r
+$ build ios android --config=buildConfig.json -r
 ```
+
+## TODO 
+
+- [ ] Usage message
+- [ ] Documentation
+- [ ] Enum options
+- [ ] Number options
