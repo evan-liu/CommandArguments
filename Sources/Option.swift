@@ -2,8 +2,8 @@ import Foundation
 
 /// Base class for `Option`s
 public class Option {
-    public let longName: String?
-    public let shortName: String?
+    public var longName: String?
+    public var shortName: String?
     
     public let usage: String?
     

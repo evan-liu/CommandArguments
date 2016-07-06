@@ -12,23 +12,66 @@ extension CommandArguments {
     public mutating func parse<T: Collection where T.Iterator.Element == String, T.Index == Int>
         (args: T, from startIndex: Int = 0) throws {
         
-        var optionParsers = [String: Parser]()
+        let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         
-        Mirror(reflecting: self).children
-            .flatMap { $0.value as? Parsable }
-            .forEach { value in
-                switch value {
-                case let option as Option:
-                    let parser = (option as! Parsable).parser
-                    if let longName = option.longName {
-                        optionParsers[longName] = parser
+        //-- Check Options
+        
+        var options = [(String?, Option)]()
+        var knownOptionNames = Set<String>()
+        
+        try fields.forEach { (name, value) in
+            switch value {
+            case let option as Option:
+                if let longName = option.longName {
+                    guard !knownOptionNames.contains(longName) else {
+                        throw TypeError.duplicatedOptionName(longName)
                     }
-                    if let shortName = option.shortName {
-                        optionParsers[shortName] = parser
-                    }
-                default: break
+                    knownOptionNames.insert(longName)
                 }
+                if let shortName = option.shortName {
+                    guard shortName.characters.count == 1 else {
+                        throw TypeError.invalidShortOptionName(shortName)
+                    }
+                    guard let _ = shortName.rangeOfCharacter(from: .letters) else {
+                        throw TypeError.invalidShortOptionName(shortName)
+                    }
+                    guard !knownOptionNames.contains(shortName) else {
+                        throw TypeError.duplicatedOptionName(shortName)
+                    }
+                    knownOptionNames.insert(shortName)
+                }
+                options.append((name, option))
+            default: break
+            }
         }
+        
+        var optionParsers = [String: Parser]()
+        options.forEach { (name, option) in
+            let parser = (option as! Parsable).parser
+            
+            if let name = name where !name.isEmpty && !knownOptionNames.contains(name) {
+                if name.characters.count == 1 {
+                    if option.shortName == nil {
+                        option.shortName = name
+                        knownOptionNames.insert(name)
+                    }
+                } else {
+                    if option.longName == nil {
+                        option.longName = name
+                        knownOptionNames.insert(name)
+                    }
+                }
+            }
+            
+            if let longName = option.longName {
+                optionParsers[longName] = parser
+            }
+            if let shortName = option.shortName {
+                optionParsers[shortName] = parser
+            }
+        }
+        
+        //-- Parse arguments
         
         var activeOptionParser: Parser?
         

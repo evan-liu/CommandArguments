@@ -3,6 +3,27 @@ import XCTest
 
 class CommandArgumentsTests: XCTestCase {
     
+    func testDefaultNames() {
+        struct TestArgs: CommandArguments {
+            var a = BoolOption()
+            var bb = BoolOption()
+            var c = StringOption()
+            var dd = StringOption()
+        }
+        
+        var args = TestArgs()
+        try! args.parse(args: [
+            "-a", "--bb",
+            "-c", "x", "--dd=y"
+            ])
+        
+        XCTAssertTrue(args.a.value)
+        XCTAssertTrue(args.bb.value)
+        
+        XCTAssertEqual(args.c.value, "x")
+        XCTAssertEqual(args.dd.value, "y")
+    }
+    
     func testBoolOption() {
         struct TestArgs: CommandArguments {
             var a = BoolOption(longName: "aa", shortName: "a")
@@ -55,7 +76,7 @@ class CommandArgumentsTests: XCTestCase {
     func testStringOption() {
         struct TestArgs: CommandArguments {
             var a = StringOption(longName: "aa", shortName: "a")
-            var b = StringOption(longName: "bb", shortName: "a")
+            var b = StringOption(longName: "bb", shortName: "b")
             
             var c = StringOption(longName: "cc", shortName: "c")
             var d = StringOption(longName: "dd", shortName: "d")
