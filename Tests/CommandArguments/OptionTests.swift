@@ -226,7 +226,7 @@ class OptionTests: XCTestCase {
         
         var args3 = TestArgs()
         try! args3.parse(["-a=x", "-b="])
-        XCTAssertEqual(args3.b.value, "")
+        XCTAssertNil(args3.b.value)
         
         var args4 = TestArgs()
         try! args4.parse(["-a=x", "-b=4"])

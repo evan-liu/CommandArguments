@@ -125,7 +125,7 @@ extension OptionalStringOption: Parsable {
         
         var canTakeValue: Bool = true
         func parseValue(_ value: String) {
-            if option.value == nil || !value.isEmpty {
+            if !value.isEmpty {
                 option.value = value
             }
             canTakeValue = false
