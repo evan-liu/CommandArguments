@@ -109,6 +109,11 @@ extension MultiStringOption: Parsable {
 
 public class OptionalStringOption: Option {
     public var value: String?
+    
+    public init(`default`: String? = nil, longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        self.value = `default`
+        super.init(longName: longName, shortName: shortName, usage: usage)
+    }
 }
 
 extension OptionalStringOption: Parsable {
@@ -118,11 +123,12 @@ extension OptionalStringOption: Parsable {
             self.option = option
         }
         
-        var canTakeValue: Bool {
-            return option.value == nil
-        }
+        var canTakeValue: Bool = true
         func parseValue(_ value: String) {
-            option.value = value
+            if option.value == nil || !value.isEmpty {
+                option.value = value
+            }
+            canTakeValue = false
         }
     }
     

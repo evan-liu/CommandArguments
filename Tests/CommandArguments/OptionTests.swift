@@ -237,6 +237,28 @@ class OptionTests: XCTestCase {
         XCTAssertEqual(args5.b.value, "5")
     }
     
+    func testOptionalStringOptionDefaultValue() {
+        struct TestArgs: CommandArguments {
+            var a = OptionalStringOption(default: "x")
+        }
+        
+        var args1 = TestArgs()
+        try! args1.parse([])
+        XCTAssertEqual(args1.a.value, "x")
+        
+        var args2 = TestArgs()
+        try! args2.parse(["-a", "y"])
+        XCTAssertEqual(args2.a.value, "y")
+        
+        var args3 = TestArgs()
+        try! args3.parse(["-a=z"])
+        XCTAssertEqual(args3.a.value, "z")
+        
+        var args4 = TestArgs()
+        try! args4.parse(["-a="])
+        XCTAssertEqual(args4.a.value, "x")
+    }
+    
     func testVariadicStringOption() {
         struct TestArgs: CommandArguments {
             var a = StringOption()
