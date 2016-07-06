@@ -24,6 +24,58 @@ class OptionTests: XCTestCase {
         XCTAssertEqual(args.dd.value, "y")
     }
     
+    func testDuplicatedNames() {
+        struct LongNames: CommandArguments {
+            var a = BoolOption(longName: "xx")
+            var b = BoolOption(longName: "xx")
+        }
+        var longArgs = LongNames()
+        do {
+            try longArgs.parse(args: [])
+            XCTFail()
+        } catch TypeError.duplicatedOptionName(_) {
+        } catch { XCTFail() }
+        
+        struct ShortNames: CommandArguments {
+            var a = BoolOption(shortName: "x")
+            var b = BoolOption(shortName: "x")
+        }
+        var shortArgs = ShortNames()
+        do {
+            try shortArgs.parse(args: [])
+            XCTFail()
+        } catch TypeError.duplicatedOptionName(_) {
+        } catch { XCTFail() }
+    }
+    
+    func testInvalidShortOptionName() {
+        struct ShortNames: CommandArguments {
+            var a = BoolOption(shortName: "1")
+        }
+        var shortArgs = ShortNames()
+        do {
+            try shortArgs.parse(args: [])
+            XCTFail()
+        } catch TypeError.invalidShortOptionName(_) {
+        } catch { XCTFail() }
+    }
+    
+    func testNoNames() {
+        struct TestArgs: CommandArguments {
+            var a = StringOption(shortName: "b")
+            var b = StringOption()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse(args: [])
+            XCTFail()
+        } catch TypeError.missingOptionName(_) {
+        } catch {
+            XCTFail()
+        }
+    }
+    
     func testBoolOption() {
         struct TestArgs: CommandArguments {
             var a = BoolOption(longName: "aa", shortName: "a")
@@ -95,6 +147,21 @@ class OptionTests: XCTestCase {
         XCTAssertEqual(args.d.value, "y")
     }
     
+    func testStringOptionThrows() {
+        struct TestArgs: CommandArguments {
+            var a = StringOption()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse(args: [])
+            XCTFail()
+        } catch ParseError.missingRequiredOption(_) {
+        } catch {
+            XCTFail()
+        }
+    }
+    
     func testMultiStringOption() {
         struct TestArgs: CommandArguments {
             var a = MultiStringOption(count: 2)
@@ -109,6 +176,38 @@ class OptionTests: XCTestCase {
         
         XCTAssertEqual(args.a.value, ["1", "2"])
         XCTAssertEqual(args.b.value, ["3", "4", "5"])
+    }
+    
+    func testMultiStringOptionThrows() {
+        struct TestArgs: CommandArguments {
+            var a = MultiStringOption(count: 3)
+            var b = BoolOption()
+        }
+        
+        // Less than count
+        [
+            ["-a"],
+            ["-a", "1"],
+            ["-a", "1", "2", "-b"]
+        ].forEach {
+            var args = TestArgs()
+            do {
+                try args.parse(args: $0)
+                XCTFail()
+            } catch ParseError.missingRequiredOption(_) {
+            } catch {
+                print(error)
+                XCTFail()
+            }
+        }
+        
+        // More than count
+        var args = TestArgs()
+        do {
+            try args.parse(args: ["-a", "1", "2", "3", "4"])
+            XCTFail()
+        } catch ParseError.invalidParameter(_) {
+        } catch { XCTFail() }
     }
     
     func testOptionalStringOption() {
@@ -142,11 +241,42 @@ class OptionTests: XCTestCase {
         struct TestArgs: CommandArguments {
             var a = StringOption()
             var b = VariadicStringOption()
+            var c = BoolOption()
         }
         
         var args = TestArgs()
-        try! args.parse(args: ["-a=x", "-b", "1", "2", "3"])
+        try! args.parse(args: ["-a=x", "-b", "1", "-c", "-b", "2", "3"])
         XCTAssertEqual(args.b.value, ["1", "2", "3"])
+    }
+    
+    func testVariadicStringOptionThrows() {
+        struct TestArgs: CommandArguments {
+            var a = VariadicStringOption(minCount: 3, maxCount: 4)
+        }
+        
+        // Less than minCount
+        [
+            ["-a"],
+            ["-a", "1"],
+            ["-a", "1", "2"]
+        ].forEach {
+            var args = TestArgs()
+            do {
+                try args.parse(args: $0)
+                XCTFail()
+            } catch ParseError.missingRequiredOption(_) {
+            } catch { XCTFail() }
+        }
+        
+        // More than maxCount
+        var args = TestArgs()
+        do {
+            try args.parse(args: ["-a", "1", "2", "3", "4", "5"])
+            XCTFail()
+        } catch ParseError.invalidParameter(_) {
+        } catch {
+            XCTFail()
+        }
     }
     
     func testOptionStopper() {
@@ -159,5 +289,21 @@ class OptionTests: XCTestCase {
         try! args.parse(args: ["-a", "--", "-1", "-2", "-3"])
         XCTAssertTrue(args.a.value)
         XCTAssertEqual(args.b.value, ["-1", "-2", "-3"])
+    }
+    
+    func testInvalidOption() {
+        struct TestArgs: CommandArguments {
+            var a = StringOption()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse(args: ["-a=b", "-c"])
+            XCTFail()
+        } catch ParseError.invalidOption(_) {
+        } catch {
+            XCTFail()
+        }
+
     }
 }

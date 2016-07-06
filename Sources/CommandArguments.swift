@@ -57,7 +57,7 @@ extension CommandArguments {
         }
         
         var optionParsers = [String: Parser]()
-        options.forEach { (name, option) in
+        try options.forEach { (name, option) in
             if let name = name where !name.isEmpty && !knownOptionNames.contains(name) {
                 if name.characters.count == 1 {
                     if option.shortName == nil {
@@ -70,6 +70,10 @@ extension CommandArguments {
                         knownOptionNames.insert(name)
                     }
                 }
+            }
+            
+            guard option.longName != nil || option.shortName != nil else {
+                throw TypeError.missingOptionName(name)
             }
             
             let parser = (option as! Parsable).parser
@@ -235,6 +239,14 @@ extension CommandArguments {
         }
         try checkActiveOption()
         try checkActiveParameter()
+        
+        try parameterParsers.forEach {
+            try $0.finishParsing()
+        }
+        
+        try optionParsers.forEach { (_, parser) in
+            try parser.validate()
+        }
     }
     
 }

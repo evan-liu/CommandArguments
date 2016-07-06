@@ -15,6 +15,19 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args.a.name, "a")
         XCTAssertEqual(args.b.name, "b")
     }
+    
+    func testDuplicatedNames() {
+        struct TestArgs: CommandArguments {
+            var a = RequiredParameter(name: "b")
+            var b = RequiredParameter(name: "b")
+        }
+        var args = TestArgs()
+        do {
+            try args.parse(args: [])
+            XCTFail()
+        } catch TypeError.duplicatedParameterName(_) {
+        } catch { XCTFail() }
+    }
 
     func testRequiredParameter() {
         struct TestArgs: CommandArguments {
@@ -29,6 +42,19 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args.b.value, "y")
     }
     
+    func testRequiredParameterThrows() {
+        struct TestArgs: CommandArguments {
+            var a = RequiredParameter()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse(args: [])
+            XCTFail()
+        } catch ParseError.missingRequiredParameter(_) {
+        } catch { XCTFail() }
+    }
+    
     func testMultiParameter() {
         struct TestArgs: CommandArguments {
             var a = MultiParameter(count: 2)
@@ -40,6 +66,26 @@ class ParameterTests: XCTestCase {
         
         XCTAssertEqual(args.a.value, ["1", "2"])
         XCTAssertEqual(args.b.value, ["3", "4", "5"])
+    }
+    
+    func testMultiParameterThrows() {
+        struct TestArgs: CommandArguments {
+            var a = MultiParameter(count: 2)
+        }
+        
+        var args1 = TestArgs()
+        do {
+            try args1.parse(args: ["1"])
+            XCTFail()
+        } catch ParseError.missingRequiredParameter(_) {
+        } catch { XCTFail() }
+        
+        var args2 = TestArgs()
+        do {
+            try args2.parse(args: ["1", "2", "3"])
+            XCTFail()
+        } catch ParseError.invalidParameter(_) {
+        } catch { XCTFail() }
     }
     
     func testOptionalParameter() {
@@ -66,6 +112,40 @@ class ParameterTests: XCTestCase {
         var args = TestArgs()
         try! args.parse(args: ["1", "2", "3", "4"])
         XCTAssertEqual(args.b.value, ["2", "3", "4"])
+    }
+    
+    func testVariadicParameterThrows() {
+        struct TestArgs: CommandArguments {
+            var a = VariadicParameter(minCount: 2, maxCount: 3)
+        }
+        
+        var args1 = TestArgs()
+        do {
+            try args1.parse(args: ["1"])
+            XCTFail()
+        } catch ParseError.missingRequiredParameter(_) {
+        } catch { XCTFail() }
+        
+        var args2 = TestArgs()
+        do {
+            try args2.parse(args: ["1", "2", "3", "4"])
+            XCTFail()
+        } catch ParseError.invalidParameter(_) {
+        } catch { XCTFail() }
+    }
+    
+    func testMissingParameters() {
+        struct TestArgs: CommandArguments {
+            var a = RequiredParameter()
+            var b = RequiredParameter()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse(args: ["1"])
+            XCTFail()
+        } catch ParseError.missingRequiredParameter(_) {
+        } catch { XCTFail() }
     }
     
 }

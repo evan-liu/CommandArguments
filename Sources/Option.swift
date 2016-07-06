@@ -60,8 +60,8 @@ extension StringOption: Parsable {
         func parseValue(_ value: String) {
             option.value = value
         }
-        func finishParsing() throws {
-            guard !canTakeValue else {
+        func validate() throws {
+            if canTakeValue {
                 throw ParseError.missingRequiredOption(option)
             }
         }
@@ -95,8 +95,8 @@ extension MultiStringOption: Parsable {
         func parseValue(_ value: String) {
             option.value.append(value)
         }
-        func finishParsing() throws {
-            guard !canTakeValue else {
+        func validate() throws {
+            if canTakeValue {
                 throw ParseError.missingRequiredOption(option)
             }
         }
@@ -160,7 +160,7 @@ extension VariadicStringOption: Parsable {
         func parseValue(_ value: String) {
             option.value.append(value)
         }
-        func finishParsing() throws {
+        func validate() throws {
             if let minCount = option.minCount where minCount > option.value.count {
                 throw ParseError.missingRequiredOption(option)
             }
