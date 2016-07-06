@@ -96,6 +96,7 @@ extension CommandArguments {
         
         var activeOptionParser: Parser?
         var activeParameterParser: Parser?
+        var optionParsingStopped = false
         
         func checkActiveOption(with value: String? = nil) throws {
             guard let parser = activeOptionParser else { return }
@@ -203,11 +204,23 @@ extension CommandArguments {
                 continue
             }
             
-            // options (start with `-` or `--`)
+            // `--` stops parsing options
+            if optionParsingStopped {
+                if activeParameterParser != nil {
+                    try checkActiveParameter(with: arg)
+                } else {
+                    try parseParameter(arg)
+                }
+                continue
+            }
+            if arg == "--" {
+                optionParsingStopped = true
+                try checkActiveOption()
+                continue
+            }
+            
+            // options (`-x` or `--x`)
             try checkActiveOption()
-            
-            // TODO `--` stop parsing options
-            
             characters.removeFirst()
             
             // `-x`

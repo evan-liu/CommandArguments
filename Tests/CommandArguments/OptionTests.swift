@@ -149,4 +149,15 @@ class OptionTests: XCTestCase {
         XCTAssertEqual(args.b.value, ["1", "2", "3"])
     }
     
+    func testOptionStopper() {
+        struct TestArgs: CommandArguments {
+            var a = BoolOption()
+            var b = VariadicParameter()
+        }
+        
+        var args = TestArgs()
+        try! args.parse(args: ["-a", "--", "-1", "-2", "-3"])
+        XCTAssertTrue(args.a.value)
+        XCTAssertEqual(args.b.value, ["-1", "-2", "-3"])
+    }
 }
