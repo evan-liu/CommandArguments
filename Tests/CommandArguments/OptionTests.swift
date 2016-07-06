@@ -1,7 +1,7 @@
 import XCTest
 @testable import CommandArguments
 
-class CommandArgumentsTests: XCTestCase {
+class OptionTests: XCTestCase {
     
     func testDefaultNames() {
         struct TestArgs: CommandArguments {

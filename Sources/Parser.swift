@@ -5,11 +5,19 @@ public enum TypeError: ErrorProtocol {
     case invalidShortOptionName(String)
     
     case duplicatedOptionName(String)
+    
+    case duplicatedParameterName(String)
+    
+    case unknownType
 }
 
 public enum ParseError: ErrorProtocol {
     
     case invalidOption(String)
+    
+    case invalidParameter(String)
+    
+    case missingRequiredParameter(Parameter)
 }
 
 protocol Parsable: class {

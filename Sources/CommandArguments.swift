@@ -14,10 +14,13 @@ extension CommandArguments {
         
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         
-        //-- Check Options
+        //-- Check type
+        
+        var knownOptionNames = Set<String>()
+        var knownParameterNames = Set<String>()
         
         var options = [(String?, Option)]()
-        var knownOptionNames = Set<String>()
+        var parameters = [(String?, Parameter)]()
         
         try fields.forEach { (name, value) in
             switch value {
@@ -41,14 +44,20 @@ extension CommandArguments {
                     knownOptionNames.insert(shortName)
                 }
                 options.append((name, option))
-            default: break
+            case let parameter as Parameter:
+                if let name = parameter.name {
+                    guard !knownParameterNames.contains(name) else {
+                        throw TypeError.duplicatedParameterName(name)
+                    }
+                    knownParameterNames.insert(name)
+                }
+                parameters.append((name, parameter))
+            default: throw TypeError.unknownType
             }
         }
         
         var optionParsers = [String: Parser]()
         options.forEach { (name, option) in
-            let parser = (option as! Parsable).parser
-            
             if let name = name where !name.isEmpty && !knownOptionNames.contains(name) {
                 if name.characters.count == 1 {
                     if option.shortName == nil {
@@ -63,6 +72,7 @@ extension CommandArguments {
                 }
             }
             
+            let parser = (option as! Parsable).parser
             if let longName = option.longName {
                 optionParsers[longName] = parser
             }
@@ -71,9 +81,21 @@ extension CommandArguments {
             }
         }
         
+        var parameterParsers = [Parser]()
+        parameters.forEach { (name, parameter) in
+            if parameter.name == nil {
+                if let name = name where !name.isEmpty && !knownParameterNames.contains(name) {
+                    parameter.name = name
+                    knownParameterNames.insert(name)
+                }
+            }
+            parameterParsers.append((parameter as! Parsable).parser)
+        }
+        
         //-- Parse arguments
         
         var activeOptionParser: Parser?
+        var activeParameterParser: Parser?
         
         func checkActiveOption(with value: String? = nil) throws {
             guard let parser = activeOptionParser else { return }
@@ -135,6 +157,36 @@ extension CommandArguments {
             }
         }
         
+        // TODO Refactor this method and checkActiveOption(with:)
+        func checkActiveParameter(with value: String? = nil) throws {
+            guard let parser = activeParameterParser else { return }
+            
+            if let value = value {
+                try parser.parseValue(value)
+                if !parser.canTakeValue {
+                    try parser.finishParsing()
+                    activeParameterParser = nil
+                }
+            } else {
+                try parser.finishParsing()
+                activeParameterParser = nil
+            }
+        }
+        
+        func parseParameter(_ value: String) throws {
+            guard parameterParsers.count > 0 else {
+                throw ParseError.invalidParameter(value)
+            }
+            
+            let parser = parameterParsers.removeFirst()
+            try parser.parseValue(value)
+            if parser.canTakeValue {
+                activeParameterParser = parser
+            } else {
+                try parser.finishParsing()
+            }
+        }
+        
         for i in startIndex..<args.endIndex {
             var arg = args[i]
             var characters = arg.characters
@@ -143,6 +195,10 @@ extension CommandArguments {
             if characters.first != "-" {
                 if activeOptionParser != nil {
                     try checkActiveOption(with: arg)
+                } else if activeParameterParser != nil {
+                    try checkActiveParameter(with: arg)
+                } else {
+                    try parseParameter(arg)
                 }
                 continue
             }
@@ -165,6 +221,7 @@ extension CommandArguments {
             try parseLongOption(characters)
         }
         try checkActiveOption()
+        try checkActiveParameter()
     }
     
 }
