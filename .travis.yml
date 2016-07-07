@@ -1,0 +1,9 @@
+language: objective-c
+osx_image: xcode8
+
+script:
+  - swift build
+
+branches:
+  only:
+    - master
