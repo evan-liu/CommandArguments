@@ -93,7 +93,7 @@ class OptionTests: XCTestCase {
             XCTFail()
         } catch TypeError.missingOptionName(_) {
         } catch {
-            XCTFail()
+            XCTFail("Wrong error type \(error)")
         }
     }
     

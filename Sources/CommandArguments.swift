@@ -12,71 +12,51 @@ extension CommandArguments {
     }
     
     public mutating func parse(_ args: ArraySlice<String>) throws {
-        
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
+        let (optionParsers, parameterParsers) = try parseFields(fields)
         
-        //-- Check type
-        
+        var parameterValues = [String]()
+        try parse(args, optionParsers: optionParsers, parameterValues: &parameterValues)
+        try parseParameters(parameterValues, withParsers: parameterParsers)
+    }
+    
+    /// Parse fileds and return `Parser`s
+    private func parseFields(_ fields: [Mirror.Child]) throws -> ([String: Parser], [Parser]) {
         var knownOptionNames = Set<String>()
         var knownParameterNames = Set<String>()
         
         var options = [(String?, Option)]()
         var parameters = [(String?, Parameter)]()
         
+        // Parse options and parameters
         try fields.forEach { (name, value) in
             if value is Option {
                 let option = value as! Option
-                if let longName = option.longName {
-                    guard !knownOptionNames.contains(longName) else {
-                        throw TypeError.duplicatedOptionName(longName)
-                    }
-                    knownOptionNames.insert(longName)
-                }
-                if let shortName = option.shortName {
-                    guard shortName.characters.count == 1 else {
-                        throw TypeError.invalidShortOptionName(shortName)
-                    }
-                    guard let _ = shortName.rangeOfCharacter(from: .letters) else {
-                        throw TypeError.invalidShortOptionName(shortName)
-                    }
-                    guard !knownOptionNames.contains(shortName) else {
-                        throw TypeError.duplicatedOptionName(shortName)
-                    }
-                    knownOptionNames.insert(shortName)
-                }
+                try checkOptionNames(long: option.longName, short: option.shortName, withKnown: &knownOptionNames)
                 options.append((name, option))
             } else {
                 let parameter = value as! Parameter
-                if let name = parameter.name {
-                    guard !knownParameterNames.contains(name) else {
-                        throw TypeError.duplicatedParameterName(name)
-                    }
-                    knownParameterNames.insert(name)
-                }
+                try checkParameterName(parameter.name, withKnown: &knownParameterNames)
                 parameters.append((name, parameter))
             }
         }
         
-        var optionParsers = [String: Parser]()
+        // Option default names
         try options.forEach { (name, option) in
-            if let name = name where !name.isEmpty && !knownOptionNames.contains(name) {
-                if name.characters.count == 1 {
-                    if option.shortName == nil {
-                        option.shortName = name
-                        knownOptionNames.insert(name)
-                    }
-                } else {
-                    if option.longName == nil {
-                        option.longName = name
-                        knownOptionNames.insert(name)
-                    }
-                }
-            }
-            
-            guard option.longName != nil || option.shortName != nil else {
+            checkFieldName(name, ofOption: option, withKnown: &knownOptionNames)
+            if option.longName == nil && option.shortName == nil {
                 throw TypeError.missingOptionName(name)
             }
-            
+        }
+        
+        // Parameters default names
+        parameters.forEach { (name, parameter) in
+            checkFieldName(name, ofParameter: parameter, withKnown: &knownParameterNames)
+        }
+        
+        // Parsers
+        var optionParsers = [String: Parser]()
+        options.forEach { (name, option) in
             let parser = (option as! Parsable).parser
             if let longName = option.longName {
                 optionParsers[longName] = parser
@@ -85,21 +65,66 @@ extension CommandArguments {
                 optionParsers[shortName] = parser
             }
         }
-        
-        var parameterParsers = [Parser]()
-        parameters.forEach { (name, parameter) in
-            if parameter.name == nil {
-                if let name = name where !name.isEmpty && !knownParameterNames.contains(name) {
-                    parameter.name = name
-                    knownParameterNames.insert(name)
-                }
+        return (optionParsers, parameters.map { ($0.1 as! Parsable).parser })
+    }
+    
+    /// Check duplicated option names
+    private func checkOptionNames(long: String?, short: String?, withKnown names: inout Set<String>) throws {
+        if let long = long {
+            guard !names.contains(long) else {
+                throw TypeError.duplicatedOptionName(long)
             }
-            parameterParsers.append((parameter as! Parsable).parser)
+            names.insert(long)
         }
-        
-        //-- Parse arguments
-        
-        var parameterValues = [String]()
+        if let short = short {
+            guard short.characters.count == 1 else {
+                throw TypeError.invalidShortOptionName(short)
+            }
+            guard let _ = short.rangeOfCharacter(from: .letters) else {
+                throw TypeError.invalidShortOptionName(short)
+            }
+            guard !names.contains(short) else {
+                throw TypeError.duplicatedOptionName(short)
+            }
+            names.insert(short)
+        }
+    }
+    
+    /// Check duplicated parameter names
+    private func checkParameterName(_ name: String?, withKnown names: inout Set<String>) throws {
+        guard let name = name else { return }
+        guard !names.contains(name) else {
+            throw TypeError.duplicatedParameterName(name)
+        }
+        names.insert(name)
+    }
+    
+    /// Use filed name as default option names
+    private func checkFieldName(_ name: String?, ofOption option: Option, withKnown names: inout Set<String>) {
+        guard let name = name where !name.isEmpty && !names.contains(name) else { return }
+        if name.characters.count == 1 {
+            if option.shortName == nil {
+                option.shortName = name
+                names.insert(name)
+            }
+        } else {
+            if option.longName == nil {
+                option.longName = name
+                names.insert(name)
+            }
+        }
+    }
+    
+    /// Use field name as default parameter name
+    private func checkFieldName(_ name: String?, ofParameter parameter: Parameter, withKnown names: inout Set<String>) {
+        guard let name = name where !name.isEmpty && !names.contains(name) else { return }
+        guard parameter.name == nil else { return }
+        parameter.name = name
+        names.insert(name)
+    }
+    
+    /// Parse options and return parameter values
+    private func parse(_ args: ArraySlice<String>, optionParsers: [String: Parser], parameterValues: inout [String]) throws {
         var activeOptionParser: Parser?
         
         func checkActiveOption(with value: String? = nil) throws {
@@ -204,8 +229,11 @@ extension CommandArguments {
         try optionParsers.forEach { (_, parser) in
             try parser.validate()
         }
-        
+    }
+    
+    private func parseParameters(_ parameterValues: [String], withParsers parameterParsers: [Parser]) throws {
         var activeParameterParser: Parser?
+        var nextParserIndex = 0
         
         func checkActiveParameter(with value: String? = nil) throws {
             guard let parser = activeParameterParser else { return }
@@ -223,11 +251,13 @@ extension CommandArguments {
         }
         
         func parseParameter(_ value: String) throws {
-            guard parameterParsers.count > 0 else {
+            guard nextParserIndex < parameterParsers.endIndex else {
                 throw ParseError.invalidParameter(value)
             }
             
-            let parser = parameterParsers.removeFirst()
+            let parser = parameterParsers[nextParserIndex]
+            nextParserIndex += 1
+            
             try parser.parseValue(value)
             if parser.canTakeValue {
                 activeParameterParser = parser
@@ -235,7 +265,7 @@ extension CommandArguments {
                 try parser.finishParsing()
             }
         }
-
+        
         try parameterValues.forEach { value in
             if activeParameterParser != nil {
                 try checkActiveParameter(with: value)
@@ -248,7 +278,6 @@ extension CommandArguments {
         try parameterParsers.forEach {
             try $0.finishParsing()
         }
-        
     }
     
 }
