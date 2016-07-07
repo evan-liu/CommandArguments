@@ -3,14 +3,15 @@ import Foundation
 public protocol CommandArguments {
     init()
     
-    mutating func parse<T: Collection where T.Iterator.Element == String, T.Index == Int>
-    (_ args: T, from startIndex: Int?) throws
+    mutating func parse(_ args: ArraySlice<String>) throws
 }
 
 extension CommandArguments {
+    public mutating func parse(_ args: [String], from startIndex: Int = 0) throws {
+        try parse(args[startIndex..<args.endIndex])
+    }
     
-    public mutating func parse<T: Collection where T.Iterator.Element == String, T.Index == Int>
-        (_ args: T, from startIndex: Int? = nil) throws {
+    public mutating func parse(_ args: ArraySlice<String>) throws {
         
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         
@@ -23,8 +24,8 @@ extension CommandArguments {
         var parameters = [(String?, Parameter)]()
         
         try fields.forEach { (name, value) in
-            switch value {
-            case let option as Option:
+            if value is Option {
+                let option = value as! Option
                 if let longName = option.longName {
                     guard !knownOptionNames.contains(longName) else {
                         throw TypeError.duplicatedOptionName(longName)
@@ -44,7 +45,8 @@ extension CommandArguments {
                     knownOptionNames.insert(shortName)
                 }
                 options.append((name, option))
-            case let parameter as Parameter:
+            } else {
+                let parameter = value as! Parameter
                 if let name = parameter.name {
                     guard !knownParameterNames.contains(name) else {
                         throw TypeError.duplicatedParameterName(name)
@@ -52,7 +54,6 @@ extension CommandArguments {
                     knownParameterNames.insert(name)
                 }
                 parameters.append((name, parameter))
-            default: throw TypeError.unknownType
             }
         }
         
@@ -98,9 +99,8 @@ extension CommandArguments {
         
         //-- Parse arguments
         
+        var parameterValues = [String]()
         var activeOptionParser: Parser?
-        var activeParameterParser: Parser?
-        var optionParsingStopped = false
         
         func checkActiveOption(with value: String? = nil) throws {
             guard let parser = activeOptionParser else { return }
@@ -125,7 +125,7 @@ extension CommandArguments {
         }
         
         func parseOptionWithEquals(_ characters: String.CharacterView) throws {
-            guard let equalIndex = characters.index(of: "=") else { return }
+            let equalIndex = characters.index(of: "=")!
             
             try activateOption(withName: String(characters[characters.startIndex..<equalIndex]))
             
@@ -162,7 +162,51 @@ extension CommandArguments {
             }
         }
         
-        // TODO Refactor this method and checkActiveOption(with:)
+        let endIndex = args.endIndex
+        for i in args.startIndex..<endIndex {
+            var arg = args[i]
+            var characters = arg.characters
+            
+            // parameter or option value (not start with `-`)
+            if characters.first != "-" {
+                if activeOptionParser != nil {
+                    try checkActiveOption(with: arg)
+                } else {
+                    parameterValues.append(arg)
+                }
+                continue
+            }
+            
+            // `--` stops parsing options
+            if arg == "--" {
+                let nextIndex = i + 1
+                if nextIndex < endIndex {
+                    parameterValues.append(contentsOf: args[nextIndex..<endIndex])
+                }
+                break
+            }
+            
+            // options (`-x` or `--x`)
+            try checkActiveOption()
+            characters.removeFirst()
+            
+            // `-x`
+            if characters.first != "-" {
+                try parseShortOption(characters)
+                continue
+            }
+            
+            // `--x`
+            characters.removeFirst()
+            try parseLongOption(characters)
+        }
+        try checkActiveOption()
+        try optionParsers.forEach { (_, parser) in
+            try parser.validate()
+        }
+        
+        var activeParameterParser: Parser?
+        
         func checkActiveParameter(with value: String? = nil) throws {
             guard let parser = activeParameterParser else { return }
             
@@ -191,63 +235,20 @@ extension CommandArguments {
                 try parser.finishParsing()
             }
         }
-        
-        let startIndex = startIndex ?? args.startIndex
-        for i in startIndex..<args.endIndex {
-            var arg = args[i]
-            var characters = arg.characters
-            
-            // parameter or option value (not start with `-`)
-            if characters.first != "-" {
-                if activeOptionParser != nil {
-                    try checkActiveOption(with: arg)
-                } else if activeParameterParser != nil {
-                    try checkActiveParameter(with: arg)
-                } else {
-                    try parseParameter(arg)
-                }
-                continue
+
+        try parameterValues.forEach { value in
+            if activeParameterParser != nil {
+                try checkActiveParameter(with: value)
+            } else {
+                try parseParameter(value)
             }
-            
-            // `--` stops parsing options
-            if optionParsingStopped {
-                if activeParameterParser != nil {
-                    try checkActiveParameter(with: arg)
-                } else {
-                    try parseParameter(arg)
-                }
-                continue
-            }
-            if arg == "--" {
-                optionParsingStopped = true
-                try checkActiveOption()
-                continue
-            }
-            
-            // options (`-x` or `--x`)
-            try checkActiveOption()
-            characters.removeFirst()
-            
-            // `-x`
-            if characters.first != "-" {
-                try parseShortOption(characters)
-                continue
-            }
-            
-            // `--x`
-            characters.removeFirst()
-            try parseLongOption(characters)
         }
-        try checkActiveOption()
-        try checkActiveParameter()
         
+        try checkActiveParameter()
         try parameterParsers.forEach {
             try $0.finishParsing()
         }
         
-        try optionParsers.forEach { (_, parser) in
-            try parser.validate()
-        }
     }
     
 }

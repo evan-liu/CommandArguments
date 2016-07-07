@@ -49,12 +49,33 @@ class OptionTests: XCTestCase {
     }
     
     func testInvalidShortOptionName() {
-        struct ShortNames: CommandArguments {
+        struct Args1: CommandArguments {
             var a = BoolOption(shortName: "1")
         }
-        var shortArgs = ShortNames()
+        struct Args2: CommandArguments {
+            var a = BoolOption(shortName: "")
+        }
+        struct Args3: CommandArguments {
+            var a = BoolOption(shortName: " ")
+        }
+        
+        var args1 = Args1()
         do {
-            try shortArgs.parse([])
+            try args1.parse([])
+            XCTFail()
+        } catch TypeError.invalidShortOptionName(_) {
+        } catch { XCTFail() }
+        
+        var args2 = Args2()
+        do {
+            try args2.parse([])
+            XCTFail()
+        } catch TypeError.invalidShortOptionName(_) {
+        } catch { XCTFail() }
+        
+        var args3 = Args3()
+        do {
+            try args3.parse([])
             XCTFail()
         } catch TypeError.invalidShortOptionName(_) {
         } catch { XCTFail() }

@@ -9,8 +9,6 @@ public enum TypeError: ErrorProtocol {
     case duplicatedOptionName(String)
     
     case duplicatedParameterName(String)
-    
-    case unknownType
 }
 
 public enum ParseError: ErrorProtocol {
