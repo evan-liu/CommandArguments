@@ -227,7 +227,7 @@ class OptionTests: XCTestCase {
         do {
             try args.parse(["-a", "1", "2", "3", "4"])
             XCTFail()
-        } catch ParseError.invalidParameter(_) {
+        } catch ParseError.invalidArgument(_) {
         } catch { XCTFail() }
     }
     
@@ -316,7 +316,7 @@ class OptionTests: XCTestCase {
         do {
             try args.parse(["-a", "1", "2", "3", "4", "5"])
             XCTFail()
-        } catch ParseError.invalidParameter(_) {
+        } catch ParseError.invalidArgument(_) {
         } catch {
             XCTFail()
         }
@@ -325,7 +325,7 @@ class OptionTests: XCTestCase {
     func testOptionStopper() {
         struct TestArgs: CommandArguments {
             var a = BoolOption()
-            var b = VariadicParameter()
+            var b = VariadicArgument()
         }
         
         var args = TestArgs()

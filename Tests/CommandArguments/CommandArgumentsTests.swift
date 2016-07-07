@@ -51,7 +51,7 @@ class CommandArgumentsTests: XCTestCase {
     
     func testBuildArgs() {
         struct BuildArguments: CommandArguments {
-            var platform = VariadicParameter(minCount: 1)
+            var platform = VariadicArgument(minCount: 1)
             var config = OptionalStringOption()
             var release = BoolOption(shortName: "r")
         }

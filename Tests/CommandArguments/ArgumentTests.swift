@@ -1,12 +1,12 @@
 import XCTest
 import CommandArguments
 
-class ParameterTests: XCTestCase {
+class ArgumentTests: XCTestCase {
     
     func testDefaultNames() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter()
-            var b = RequiredParameter()
+            var a = RequiredArgument()
+            var b = RequiredArgument()
         }
         
         var args = TestArgs()
@@ -18,21 +18,21 @@ class ParameterTests: XCTestCase {
     
     func testDuplicatedNames() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter(name: "b")
-            var b = RequiredParameter(name: "b")
+            var a = RequiredArgument(name: "b")
+            var b = RequiredArgument(name: "b")
         }
         var args = TestArgs()
         do {
             try args.parse([])
             XCTFail()
-        } catch TypeError.duplicatedParameterName(_) {
+        } catch TypeError.duplicatedArgumentName(_) {
         } catch { XCTFail() }
     }
 
-    func testRequiredParameter() {
+    func testRequiredArgument() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter()
-            var b = RequiredParameter()
+            var a = RequiredArgument()
+            var b = RequiredArgument()
         }
         
         var args = TestArgs()
@@ -42,23 +42,23 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args.b.value, "y")
     }
     
-    func testRequiredParameterThrows() {
+    func testRequiredArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter()
+            var a = RequiredArgument()
         }
         
         var args = TestArgs()
         do {
             try args.parse([])
             XCTFail()
-        } catch ParseError.missingRequiredParameter(_) {
+        } catch ParseError.missingRequiredArgument(_) {
         } catch { XCTFail() }
     }
     
-    func testMultiParameter() {
+    func testMultiArgument() {
         struct TestArgs: CommandArguments {
-            var a = MultiParameter(count: 2)
-            var b = MultiParameter(count: 3)
+            var a = MultiArgument(count: 2)
+            var b = MultiArgument(count: 3)
         }
         
         var args = TestArgs()
@@ -68,30 +68,30 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args.b.value, ["3", "4", "5"])
     }
     
-    func testMultiParameterThrows() {
+    func testMultiArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = MultiParameter(count: 2)
+            var a = MultiArgument(count: 2)
         }
         
         var args1 = TestArgs()
         do {
             try args1.parse(["1"])
             XCTFail()
-        } catch ParseError.missingRequiredParameter(_) {
+        } catch ParseError.missingRequiredArgument(_) {
         } catch { XCTFail() }
         
         var args2 = TestArgs()
         do {
             try args2.parse(["1", "2", "3"])
             XCTFail()
-        } catch ParseError.invalidParameter(_) {
+        } catch ParseError.invalidArgument(_) {
         } catch { XCTFail() }
     }
     
-    func testOptionalParameter() {
+    func testOptionalArgument() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter()
-            var b = OptionalParameter()
+            var a = RequiredArgument()
+            var b = OptionalArgument()
         }
         
         var args1 = TestArgs()
@@ -103,10 +103,10 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args2.b.value, "2")
     }
     
-    func testVariadicParameter() {
+    func testVariadicArgument() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter()
-            var b = VariadicParameter()
+            var a = RequiredArgument()
+            var b = VariadicArgument()
         }
         
         var args = TestArgs()
@@ -114,44 +114,44 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args.b.value, ["2", "3", "4"])
     }
     
-    func testVariadicParameterThrows() {
+    func testVariadicArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = VariadicParameter(minCount: 2, maxCount: 3)
+            var a = VariadicArgument(minCount: 2, maxCount: 3)
         }
         
         var args1 = TestArgs()
         do {
             try args1.parse(["1"])
             XCTFail()
-        } catch ParseError.missingRequiredParameter(_) {
+        } catch ParseError.missingRequiredArgument(_) {
         } catch { XCTFail() }
         
         var args2 = TestArgs()
         do {
             try args2.parse(["1", "2", "3", "4"])
             XCTFail()
-        } catch ParseError.invalidParameter(_) {
+        } catch ParseError.invalidArgument(_) {
         } catch { XCTFail() }
     }
     
-    func testMissingParameters() {
+    func testMissingArguments() {
         struct TestArgs: CommandArguments {
-            var a = RequiredParameter()
-            var b = RequiredParameter()
+            var a = RequiredArgument()
+            var b = RequiredArgument()
         }
         
         var args = TestArgs()
         do {
             try args.parse(["1"])
             XCTFail()
-        } catch ParseError.missingRequiredParameter(_) {
+        } catch ParseError.missingRequiredArgument(_) {
         } catch { XCTFail() }
     }
     
-    func testTrailingParameter() {
+    func testTrailingArgument() {
         struct TestArgs: CommandArguments {
-            var a = VariadicParameter()
-            var b = RequiredParameter()
+            var a = VariadicArgument()
+            var b = RequiredArgument()
         }
         
         var args = TestArgs()
@@ -160,10 +160,10 @@ class ParameterTests: XCTestCase {
         XCTAssertEqual(args.b.value, "4")
     }
     
-    func testTrailingMultiParameter() {
+    func testTrailingMultiArgument() {
         struct TestArgs: CommandArguments {
-            var a = VariadicParameter()
-            var b = MultiParameter(count: 2)
+            var a = VariadicArgument()
+            var b = MultiArgument(count: 2)
         }
         
         var args = TestArgs()

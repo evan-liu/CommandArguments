@@ -13,31 +13,31 @@ extension CommandArguments {
     
     public mutating func parse(_ args: ArraySlice<String>) throws {
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
-        let (options, parameters) = try parseFields(fields)
+        let (options, arguments) = try parseFields(fields)
         
-        var parameterValues = [String]()
-        try parseOptions(options, withArgs: args, parameterValues: &parameterValues)
-        try parseParameters(parameters, withValues: parameterValues)
+        var ArgumentValues = [String]()
+        try parseOptions(options, withArgs: args, ArgumentValues: &ArgumentValues)
+        try parseArguments(arguments, withValues: ArgumentValues)
     }
     
     /// Parse fileds and return `Parser`s
-    private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Parameter]) {
+    private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Argument]) {
         var knownOptionNames = Set<String>()
-        var knownParameterNames = Set<String>()
+        var knownArgumentNames = Set<String>()
         
         var optionFields = [(String?, Option)]()
-        var parameterFields = [(String?, Parameter)]()
+        var ArgumentFields = [(String?, Argument)]()
         
-        // Parse options and parameters
+        // Parse options and Arguments
         try fields.forEach { (name, value) in
             if value is Option {
                 let option = value as! Option
                 try checkOptionNames(long: option.longName, short: option.shortName, withKnown: &knownOptionNames)
                 optionFields.append((name, option))
             } else {
-                let parameter = value as! Parameter
-                try checkParameterName(parameter.name, withKnown: &knownParameterNames)
-                parameterFields.append((name, parameter))
+                let argument = value as! Argument
+                try checkArgumentName(argument.name, withKnown: &knownArgumentNames)
+                ArgumentFields.append((name, argument))
             }
         }
         
@@ -49,15 +49,15 @@ extension CommandArguments {
             }
         }
         
-        // Check parameters default names (using filed name) and name missing error
-        try parameterFields.forEach { (name, parameter) in
-            checkFieldName(name, ofParameter: parameter, withKnown: &knownParameterNames)
-            if parameter.name == nil {
+        // Check Arguments default names (using filed name) and name missing error
+        try ArgumentFields.forEach { (name, Argument) in
+            checkFieldName(name, ofArgument: Argument, withKnown: &knownArgumentNames)
+            if Argument.name == nil {
                 throw TypeError.missingOptionName(name)
             }
         }
         
-        return (optionFields.map { $0.1 }, parameterFields.map { $0.1 } )
+        return (optionFields.map { $0.1 }, ArgumentFields.map { $0.1 } )
     }
     
     /// Check duplicated option names
@@ -82,11 +82,11 @@ extension CommandArguments {
         }
     }
     
-    /// Check duplicated parameter names
-    private func checkParameterName(_ name: String?, withKnown names: inout Set<String>) throws {
+    /// Check duplicated Argument names
+    private func checkArgumentName(_ name: String?, withKnown names: inout Set<String>) throws {
         guard let name = name else { return }
         guard !names.contains(name) else {
-            throw TypeError.duplicatedParameterName(name)
+            throw TypeError.duplicatedArgumentName(name)
         }
         names.insert(name)
     }
@@ -107,16 +107,16 @@ extension CommandArguments {
         }
     }
     
-    /// Use field name as default parameter name
-    private func checkFieldName(_ name: String?, ofParameter parameter: Parameter, withKnown names: inout Set<String>) {
+    /// Use field name as default Argument name
+    private func checkFieldName(_ name: String?, ofArgument argument: Argument, withKnown names: inout Set<String>) {
         guard let name = name where !name.isEmpty && !names.contains(name) else { return }
-        guard parameter.name == nil else { return }
-        parameter.name = name
+        guard argument.name == nil else { return }
+        argument.name = name
         names.insert(name)
     }
     
-    /// Parse options and return parameter values
-    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, parameterValues: inout [String]) throws {
+    /// Parse options and return Argument values
+    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, ArgumentValues: inout [String]) throws {
         
         var parsers = [String: Parser]()
         options.forEach { option in
@@ -195,12 +195,12 @@ extension CommandArguments {
             var arg = args[i]
             var characters = arg.characters
             
-            // parameter or option value (not start with `-`)
+            // Argument or option value (not start with `-`)
             if characters.first != "-" {
                 if activeOptionParser != nil {
                     try checkActiveOption(with: arg)
                 } else {
-                    parameterValues.append(arg)
+                    ArgumentValues.append(arg)
                 }
                 continue
             }
@@ -209,7 +209,7 @@ extension CommandArguments {
             if arg == "--" {
                 let nextIndex = i + 1
                 if nextIndex < endIndex {
-                    parameterValues.append(contentsOf: args[nextIndex..<endIndex])
+                    ArgumentValues.append(contentsOf: args[nextIndex..<endIndex])
                 }
                 break
             }
@@ -234,61 +234,61 @@ extension CommandArguments {
         }
     }
     
-    private func parseParameters(_ parameters: [Parameter], withValues values: [String]) throws {
-        if values.isEmpty && parameters.isEmpty { return } // No parameters
-        if parameters.isEmpty {
-            throw ParseError.invalidParameter(values[0])
+    private func parseArguments(_ Arguments: [Argument], withValues values: [String]) throws {
+        if values.isEmpty && Arguments.isEmpty { return } // No Arguments
+        if Arguments.isEmpty {
+            throw ParseError.invalidArgument(values[0])
         }
         if values.isEmpty {
-            throw ParseError.missingRequiredParameter(parameters[0])
+            throw ParseError.missingRequiredArgument(Arguments[0])
         }
         
-        let parsers = parameters.map { ($0 as! Parsable).parser }
+        let parsers = Arguments.map { ($0 as! Parsable).parser }
         
-        var nextParameterIndex = 0
-        var lastParameterIndex = parameters.endIndex - 1
-        var activeParameterIndex: Int?
+        var nextArgumentIndex = 0
+        var lastArgumentIndex = Arguments.endIndex - 1
+        var activeArgumentIndex: Int?
         
-        func checkActiveParameter(with value: String? = nil) throws {
-            guard let index = activeParameterIndex else { return }
+        func checkActiveArgument(with value: String? = nil) throws {
+            guard let index = activeArgumentIndex else { return }
             let parser = parsers[index]
             
             if let value = value {
                 try parser.parseValue(value)
                 if !parser.canTakeValue {
                     try parser.finishParsing()
-                    activeParameterIndex = nil
+                    activeArgumentIndex = nil
                 }
             } else {
                 try parser.finishParsing()
-                activeParameterIndex = nil
+                activeArgumentIndex = nil
             }
         }
         
-        func parseParameter(_ value: String) throws {
-            guard nextParameterIndex <= lastParameterIndex else {
-                throw ParseError.invalidParameter(value)
+        func parseArgument(_ value: String) throws {
+            guard nextArgumentIndex <= lastArgumentIndex else {
+                throw ParseError.invalidArgument(value)
             }
             
-            let parser = parsers[nextParameterIndex]
+            let parser = parsers[nextArgumentIndex]
             try parser.parseValue(value)
             if parser.canTakeValue {
-                activeParameterIndex = nextParameterIndex
+                activeArgumentIndex = nextArgumentIndex
             } else {
                 try parser.finishParsing()
             }
             
-            nextParameterIndex += 1
+            nextArgumentIndex += 1
         }
         
         var valueEndIndex = values.endIndex
-        func checkTrainingParameter() throws {
-            guard parameters.count > 1 else { return }
-            guard let parameter = parameters.last! as? TrailingParameter else { return }
+        func checkTrainingArgument() throws {
+            guard Arguments.count > 1 else { return }
+            guard let Argument = Arguments.last! as? TrailingArgument else { return }
             
-            let count = parameter.valueCount
+            let count = Argument.valueCount
             guard values.count >= count else {
-                throw ParseError.missingRequiredParameter(parameters.last!)
+                throw ParseError.missingRequiredArgument(Arguments.last!)
             }
             
             let parser = parsers.last!
@@ -298,20 +298,20 @@ extension CommandArguments {
             try parser.finishParsing()
             
             valueEndIndex -= count
-            lastParameterIndex -= 1
+            lastArgumentIndex -= 1
         }
-        try checkTrainingParameter()
+        try checkTrainingArgument()
         
         for i in 0 ..< valueEndIndex {
             let value = values[i]
-            if activeParameterIndex != nil {
-                try checkActiveParameter(with: value)
+            if activeArgumentIndex != nil {
+                try checkActiveArgument(with: value)
             } else {
-                try parseParameter(value)
+                try parseArgument(value)
             }
         }
         
-        try checkActiveParameter()
+        try checkActiveArgument()
         try parsers.forEach {
             try $0.finishParsing()
         }

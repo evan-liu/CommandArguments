@@ -4,13 +4,13 @@ public enum TypeError: ErrorProtocol {
     
     case missingOptionName(String?)
     
-    case missingParameterName(String?)
+    case missingArgumentName(String?)
     
     case invalidShortOptionName(String)
     
     case duplicatedOptionName(String)
     
-    case duplicatedParameterName(String)
+    case duplicatedArgumentName(String)
 }
 
 public enum ParseError: ErrorProtocol {
@@ -19,9 +19,9 @@ public enum ParseError: ErrorProtocol {
     
     case missingRequiredOption(Option)
     
-    case invalidParameter(String)
+    case invalidArgument(String)
     
-    case missingRequiredParameter(Parameter)
+    case missingRequiredArgument(Argument)
 }
 
 protocol Parsable: class {
