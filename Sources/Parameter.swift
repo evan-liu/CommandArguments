@@ -139,3 +139,15 @@ extension VariadicParameter: Parsable {
         return VariadicParameterParser(parameter: self)
     }
 }
+
+protocol TrailingParameter {
+    var valueCount: Int { get }
+}
+
+extension RequiredParameter: TrailingParameter {
+    var valueCount: Int { return 1 }
+}
+
+extension MultiParameter: TrailingParameter {
+    var valueCount: Int { return count }
+}

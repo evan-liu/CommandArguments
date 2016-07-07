@@ -148,4 +148,28 @@ class ParameterTests: XCTestCase {
         } catch { XCTFail() }
     }
     
+    func testTrailingParameter() {
+        struct TestArgs: CommandArguments {
+            var a = VariadicParameter()
+            var b = RequiredParameter()
+        }
+        
+        var args = TestArgs()
+        try! args.parse(["1", "2", "3", "4"])
+        XCTAssertEqual(args.a.value, ["1", "2", "3"])
+        XCTAssertEqual(args.b.value, "4")
+    }
+    
+    func testTrailingMultiParameter() {
+        struct TestArgs: CommandArguments {
+            var a = VariadicParameter()
+            var b = MultiParameter(count: 2)
+        }
+        
+        var args = TestArgs()
+        try! args.parse(["1", "2", "3", "4"])
+        XCTAssertEqual(args.a.value, ["1", "2"])
+        XCTAssertEqual(args.b.value, ["3", "4"])
+    }
+    
 }

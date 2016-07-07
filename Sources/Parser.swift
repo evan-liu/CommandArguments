@@ -4,6 +4,8 @@ public enum TypeError: ErrorProtocol {
     
     case missingOptionName(String?)
     
+    case missingParameterName(String?)
+    
     case invalidShortOptionName(String)
     
     case duplicatedOptionName(String)
