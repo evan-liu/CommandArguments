@@ -2,6 +2,8 @@
 
 Strong typed arguments parsing library based on Swift reflection (`Mirror`) API. 
 
+**Requirements**: `Swift 3.0 Preview 1` (`Xcode-beta 1`)
+
 ## Example
 
 ```swift
