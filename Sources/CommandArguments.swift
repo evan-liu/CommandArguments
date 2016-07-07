@@ -13,15 +13,15 @@ extension CommandArguments {
     
     public mutating func parse(_ args: ArraySlice<String>) throws {
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
-        let (optionParsers, parameters) = try parseFields(fields)
+        let (options, parameters) = try parseFields(fields)
         
         var parameterValues = [String]()
-        try parse(args, optionParsers: optionParsers, parameterValues: &parameterValues)
+        try parseOptions(options, withArgs: args, parameterValues: &parameterValues)
         try parseParameters(parameters, withValues: parameterValues)
     }
     
     /// Parse fileds and return `Parser`s
-    private func parseFields(_ fields: [Mirror.Child]) throws -> ([String: Parser], [Parameter]) {
+    private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Parameter]) {
         var knownOptionNames = Set<String>()
         var knownParameterNames = Set<String>()
         
@@ -41,7 +41,7 @@ extension CommandArguments {
             }
         }
         
-        // Option default names
+        // Check option default names (using filed name) and name missing error
         try optionFields.forEach { (name, option) in
             checkFieldName(name, ofOption: option, withKnown: &knownOptionNames)
             if option.longName == nil && option.shortName == nil {
@@ -49,7 +49,7 @@ extension CommandArguments {
             }
         }
         
-        // Parameters default names
+        // Check parameters default names (using filed name) and name missing error
         try parameterFields.forEach { (name, parameter) in
             checkFieldName(name, ofParameter: parameter, withKnown: &knownParameterNames)
             if parameter.name == nil {
@@ -57,18 +57,7 @@ extension CommandArguments {
             }
         }
         
-        var optionParsers = [String: Parser]()
-        optionFields.forEach { (name, option) in
-            let parser = (option as! Parsable).parser
-            if let longName = option.longName {
-                optionParsers[longName] = parser
-            }
-            if let shortName = option.shortName {
-                optionParsers[shortName] = parser
-            }
-        }
-        let parameters = parameterFields.map { $0.1 }
-        return (optionParsers, parameters )
+        return (optionFields.map { $0.1 }, parameterFields.map { $0.1 } )
     }
     
     /// Check duplicated option names
@@ -127,7 +116,18 @@ extension CommandArguments {
     }
     
     /// Parse options and return parameter values
-    private func parse(_ args: ArraySlice<String>, optionParsers: [String: Parser], parameterValues: inout [String]) throws {
+    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, parameterValues: inout [String]) throws {
+        
+        var parsers = [String: Parser]()
+        options.forEach { option in
+            let parser = (option as! Parsable).parser
+            if let longName = option.longName {
+                parsers[longName] = parser
+            }
+            if let shortName = option.shortName {
+                parsers[shortName] = parser
+            }
+        }
         var activeOptionParser: Parser?
         
         func checkActiveOption(with value: String? = nil) throws {
@@ -146,7 +146,7 @@ extension CommandArguments {
         }
         
         func activateOption(withName name: String) throws {
-            guard let parser = optionParsers[name] else {
+            guard let parser = parsers[name] else {
                 throw ParseError.invalidOption(name)
             }
             activeOptionParser = parser
@@ -229,7 +229,7 @@ extension CommandArguments {
             try parseLongOption(characters)
         }
         try checkActiveOption()
-        try optionParsers.forEach { (_, parser) in
+        try parsers.forEach { (_, parser) in
             try parser.validate()
         }
     }
