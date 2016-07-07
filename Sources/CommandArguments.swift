@@ -15,9 +15,9 @@ extension CommandArguments {
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         let (options, arguments) = try parseFields(fields)
         
-        var ArgumentValues = [String]()
-        try parseOptions(options, withArgs: args, ArgumentValues: &ArgumentValues)
-        try parseArguments(arguments, withValues: ArgumentValues)
+        var argumentValues = [String]()
+        try parseOptions(options, withArgs: args, argumentValues: &argumentValues)
+        try parseArguments(arguments, withValues: argumentValues)
     }
     
     /// Parse fileds and return `Parser`s
@@ -26,9 +26,9 @@ extension CommandArguments {
         var knownArgumentNames = Set<String>()
         
         var optionFields = [(String?, Option)]()
-        var ArgumentFields = [(String?, Argument)]()
+        var argumentFields = [(String?, Argument)]()
         
-        // Parse options and Arguments
+        // Parse options and arguments
         try fields.forEach { (name, value) in
             if value is Option {
                 let option = value as! Option
@@ -37,7 +37,7 @@ extension CommandArguments {
             } else {
                 let argument = value as! Argument
                 try checkArgumentName(argument.name, withKnown: &knownArgumentNames)
-                ArgumentFields.append((name, argument))
+                argumentFields.append((name, argument))
             }
         }
         
@@ -49,15 +49,15 @@ extension CommandArguments {
             }
         }
         
-        // Check Arguments default names (using filed name) and name missing error
-        try ArgumentFields.forEach { (name, Argument) in
-            checkFieldName(name, ofArgument: Argument, withKnown: &knownArgumentNames)
-            if Argument.name == nil {
+        // Check argument default names (using filed name) and name missing error
+        try argumentFields.forEach { (name, argument) in
+            checkFieldName(name, ofArgument: argument, withKnown: &knownArgumentNames)
+            if argument.name == nil {
                 throw TypeError.missingOptionName(name)
             }
         }
         
-        return (optionFields.map { $0.1 }, ArgumentFields.map { $0.1 } )
+        return (optionFields.map { $0.1 }, argumentFields.map { $0.1 } )
     }
     
     /// Check duplicated option names
@@ -82,7 +82,7 @@ extension CommandArguments {
         }
     }
     
-    /// Check duplicated Argument names
+    /// Check duplicated argument names
     private func checkArgumentName(_ name: String?, withKnown names: inout Set<String>) throws {
         guard let name = name else { return }
         guard !names.contains(name) else {
@@ -107,7 +107,7 @@ extension CommandArguments {
         }
     }
     
-    /// Use field name as default Argument name
+    /// Use field name as default argument name
     private func checkFieldName(_ name: String?, ofArgument argument: Argument, withKnown names: inout Set<String>) {
         guard let name = name where !name.isEmpty && !names.contains(name) else { return }
         guard argument.name == nil else { return }
@@ -115,8 +115,8 @@ extension CommandArguments {
         names.insert(name)
     }
     
-    /// Parse options and return Argument values
-    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, ArgumentValues: inout [String]) throws {
+    /// Parse options and return argument values
+    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, argumentValues: inout [String]) throws {
         
         var parsers = [String: Parser]()
         options.forEach { option in
@@ -200,7 +200,7 @@ extension CommandArguments {
                 if activeOptionParser != nil {
                     try checkActiveOption(with: arg)
                 } else {
-                    ArgumentValues.append(arg)
+                    argumentValues.append(arg)
                 }
                 continue
             }
@@ -209,7 +209,7 @@ extension CommandArguments {
             if arg == "--" {
                 let nextIndex = i + 1
                 if nextIndex < endIndex {
-                    ArgumentValues.append(contentsOf: args[nextIndex..<endIndex])
+                    argumentValues.append(contentsOf: args[nextIndex..<endIndex])
                 }
                 break
             }
@@ -234,19 +234,19 @@ extension CommandArguments {
         }
     }
     
-    private func parseArguments(_ Arguments: [Argument], withValues values: [String]) throws {
-        if values.isEmpty && Arguments.isEmpty { return } // No Arguments
-        if Arguments.isEmpty {
+    private func parseArguments(_ arguments: [Argument], withValues values: [String]) throws {
+        if values.isEmpty && arguments.isEmpty { return } // No arguments
+        if arguments.isEmpty {
             throw ParseError.invalidArgument(values[0])
         }
         if values.isEmpty {
-            throw ParseError.missingRequiredArgument(Arguments[0])
+            throw ParseError.missingRequiredArgument(arguments[0])
         }
         
-        let parsers = Arguments.map { ($0 as! Parsable).parser }
+        let parsers = arguments.map { ($0 as! Parsable).parser }
         
         var nextArgumentIndex = 0
-        var lastArgumentIndex = Arguments.endIndex - 1
+        var lastArgumentIndex = arguments.endIndex - 1
         var activeArgumentIndex: Int?
         
         func checkActiveArgument(with value: String? = nil) throws {
@@ -283,12 +283,12 @@ extension CommandArguments {
         
         var valueEndIndex = values.endIndex
         func checkTrainingArgument() throws {
-            guard Arguments.count > 1 else { return }
-            guard let Argument = Arguments.last! as? TrailingArgument else { return }
+            guard arguments.count > 1 else { return }
+            guard let argument = arguments.last! as? TrailingArgument else { return }
             
-            let count = Argument.valueCount
+            let count = argument.valueCount
             guard values.count >= count else {
-                throw ParseError.missingRequiredArgument(Arguments.last!)
+                throw ParseError.missingRequiredArgument(arguments.last!)
             }
             
             let parser = parsers.last!

@@ -17,26 +17,26 @@ public class RequiredArgument: Argument {
 
 extension RequiredArgument: Parsable {
     class RequiredArgumentParser: Parser {
-        let Argument: RequiredArgument
-        init(Argument: RequiredArgument) {
-            self.Argument = Argument
+        let argument: RequiredArgument
+        init(argument: RequiredArgument) {
+            self.argument = argument
         }
         
         var canTakeValue: Bool {
-            return Argument.value == nil
+            return argument.value == nil
         }
         func parseValue(_ value: String) {
-            Argument.value = value
+            argument.value = value
         }
         func finishParsing() throws {
             guard !canTakeValue else {
-                throw ParseError.missingRequiredArgument(Argument)
+                throw ParseError.missingRequiredArgument(argument)
             }
         }
     }
     
     var parser: Parser {
-        return RequiredArgumentParser(Argument: self)
+        return RequiredArgumentParser(argument: self)
     }
 }
 
@@ -52,26 +52,26 @@ public class MultiArgument: Argument {
 
 extension MultiArgument: Parsable {
     class MultiArgumentParser: Parser {
-        let Argument: MultiArgument
-        init(Argument: MultiArgument) {
-            self.Argument = Argument
+        let argument: MultiArgument
+        init(argument: MultiArgument) {
+            self.argument = argument
         }
         
         var canTakeValue: Bool {
-            return Argument.value.count < Argument.count
+            return argument.value.count < argument.count
         }
         func parseValue(_ value: String) {
-            Argument.value.append(value)
+            argument.value.append(value)
         }
         func finishParsing() throws {
             guard !canTakeValue else {
-                throw ParseError.missingRequiredArgument(Argument)
+                throw ParseError.missingRequiredArgument(argument)
             }
         }
     }
     
     var parser: Parser {
-        return MultiArgumentParser(Argument: self)
+        return MultiArgumentParser(argument: self)
     }
 }
 
@@ -81,21 +81,21 @@ public class OptionalArgument: Argument {
 
 extension OptionalArgument: Parsable {
     class OptionalArgumentParser: Parser {
-        let Argument: OptionalArgument
-        init(Argument: OptionalArgument) {
-            self.Argument = Argument
+        let argument: OptionalArgument
+        init(argument: OptionalArgument) {
+            self.argument = argument
         }
         
         var canTakeValue: Bool {
-            return Argument.value == nil
+            return argument.value == nil
         }
         func parseValue(_ value: String) {
-            Argument.value = value
+            argument.value = value
         }
     }
     
     var parser: Parser {
-        return OptionalArgumentParser(Argument: self)
+        return OptionalArgumentParser(argument: self)
     }
 }
 
@@ -113,30 +113,30 @@ public class VariadicArgument: Argument {
 
 extension VariadicArgument: Parsable {
     class VariadicArgumentParser: Parser {
-        let Argument: VariadicArgument
-        init(Argument: VariadicArgument) {
-            self.Argument = Argument
+        let argument: VariadicArgument
+        init(argument: VariadicArgument) {
+            self.argument = argument
         }
         
         var canTakeValue: Bool {
-            if let maxCount = Argument.maxCount where maxCount > 0 {
-                return Argument.value.count < maxCount
+            if let maxCount = argument.maxCount where maxCount > 0 {
+                return argument.value.count < maxCount
             } else {
                 return true
             }
         }
         func parseValue(_ value: String) {
-            Argument.value.append(value)
+            argument.value.append(value)
         }
         func finishParsing() throws {
-            if let minCount = Argument.minCount where minCount > Argument.value.count {
-                throw ParseError.missingRequiredArgument(Argument)
+            if let minCount = argument.minCount where minCount > argument.value.count {
+                throw ParseError.missingRequiredArgument(argument)
             }
         }
     }
     
     var parser: Parser {
-        return VariadicArgumentParser(Argument: self)
+        return VariadicArgumentParser(argument: self)
     }
 }
 
