@@ -2,11 +2,14 @@ import Foundation
 
 public protocol CommandArguments {
     init()
-    
-    mutating func parse(_ args: ArraySlice<String>) throws
 }
 
 extension CommandArguments {
+    
+    public mutating func parse(_ args: String, from startIndex: Int = 0) throws {
+        try parse(args.components(separatedBy: " "), from: startIndex)
+    }
+    
     public mutating func parse(_ args: [String], from startIndex: Int = 0) throws {
         try parse(args[startIndex..<args.endIndex])
     }
@@ -20,6 +23,9 @@ extension CommandArguments {
         try parseArguments(arguments, withValues: argumentValues)
     }
     
+}
+
+extension CommandArguments {
     /// Parse fileds and return `Parser`s
     private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Argument]) {
         var knownOptionNames = Set<String>()
@@ -316,5 +322,4 @@ extension CommandArguments {
             try $0.finishParsing()
         }
     }
-    
 }

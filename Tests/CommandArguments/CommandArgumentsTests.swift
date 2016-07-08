@@ -48,20 +48,5 @@ class CommandArgumentsTests: XCTestCase {
         XCTAssertFalse(args3.a.value)
         XCTAssertFalse(args3.b.value)
     }
-    
-    func testBuildArgs() {
-        struct BuildArguments: CommandArguments {
-            var platform = VariadicArgument(minCount: 1)
-            var config = OptionalStringOption()
-            var release = BoolOption(shortName: "r")
-        }
-        
-        var buildArgs = BuildArguments()
-        try! buildArgs.parse(["ios", "android", "--config=buildConfig.json", "-r"])
-        
-        XCTAssertEqual(buildArgs.platform.value, ["ios", "android"])
-        XCTAssertEqual(buildArgs.config.value, "buildConfig.json")
-        XCTAssertTrue(buildArgs.release.value)
-    }
 
 }
