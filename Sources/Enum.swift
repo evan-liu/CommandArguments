@@ -1,69 +1,58 @@
 import Foundation
 
+/// `enum` type can be used by `Argument` and `Option`
 public protocol ArgumentEnum {
     init?(rawValue: String)
 }
 
+/// `Argument` with `enum`
 public class EnumArgument<T: ArgumentEnum>: Argument {
     public var value: T!
     
-    public init() {
-    }
+    public init() { }
 }
 
-class EnumArgumentParser<T: ArgumentEnum>: Parser {
-    let argument: EnumArgument<T>
-    init(argument: EnumArgument<T>) {
-        self.argument = argument
-    }
-    
-    var canTakeValue: Bool {
-        return argument.value == nil
-    }
-    func parseValue(_ value: String) {
-        argument.value = T.init(rawValue: value)
-    }
-    func finishParsing() throws {
-        guard !canTakeValue else {
-            throw ParseError.missingRequiredArgument(argument)
-        }
-    }
-}
-
-extension EnumArgument: Parsable {
-    var parser: Parser {
-        return EnumArgumentParser(argument: self)
-    }
-}
-
+/// `Option` with `enum`
 public class EnumOption<T: ArgumentEnum>: Option {
     public var value: T!
     
-    public init() {
-    }
+    public init() { }
 }
 
-class EnumOptionParser<T: ArgumentEnum>: Parser {
-    let option: EnumOption<T>
-    init(option: EnumOption<T>) {
-        self.option = option
+// ----------------------------------------
+// MARK: Internal
+// ----------------------------------------
+
+protocol EnumArgumentProtocol: Parsable {
+    associatedtype Enum: ArgumentEnum
+    
+    var value: Enum! { get set }
+}
+
+class EnumArgumentParser<T: EnumArgumentProtocol>: Parser {
+    var target: T
+    init(target: T) {
+        self.target = target
     }
     
-    var canTakeValue: Bool {
-        return option.value == nil
-    }
+    var canTakeValue = true
     func parseValue(_ value: String) {
-        option.value = T.init(rawValue: value)
+        target.value = T.Enum.init(rawValue: value)
+        canTakeValue = false
     }
-    func finishParsing() throws {
-        guard !canTakeValue else {
-            throw ParseError.missingRequiredOption(option)
-        }
+    func validate() throws {
+        if target.value == nil { throw target.missingError }
     }
 }
 
-extension EnumOption: Parsable {
+extension EnumArgument: EnumArgumentProtocol {
     var parser: Parser {
-        return EnumOptionParser(option: self)
+        return EnumArgumentParser(target: self)
+    }
+}
+
+extension EnumOption: EnumArgumentProtocol {
+    var parser: Parser {
+        return EnumArgumentParser(target: self)
     }
 }

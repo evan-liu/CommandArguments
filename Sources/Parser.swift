@@ -26,6 +26,20 @@ public enum ParseError: ErrorProtocol {
 
 protocol Parsable: class {
     var parser: Parser { get }
+    
+    var missingError: ErrorProtocol { get }
+}
+
+extension Argument {
+    var missingError: ErrorProtocol {
+        return ParseError.missingRequiredArgument(self)
+    }
+}
+
+extension Option {
+    var missingError: ErrorProtocol {
+        return ParseError.missingRequiredOption(self)
+    }
 }
 
 protocol Parser {
@@ -44,6 +58,11 @@ protocol Parser {
 }
 
 extension Parser {
-    func finishParsing() { }
-    func validate() { }
+    
+    func finishParsing() throws {
+        try validate()
+    }
+    
+    func validate() throws {
+    }
 }
