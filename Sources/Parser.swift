@@ -17,9 +17,9 @@ public enum ParseError: ErrorProtocol {
     
     case invalidOption(String)
     
-    case missingRequiredOption(Option)
-    
     case invalidArgument(String)
+    
+    case missingRequiredOption(Option)
     
     case missingRequiredArgument(Argument)
 }
