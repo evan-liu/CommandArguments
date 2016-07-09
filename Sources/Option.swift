@@ -2,9 +2,14 @@ import Foundation
 
 /// Base class for `Option`s
 public class Option {
+    
+    /// Long name of the option as in `--x`
     public var longName: String?
+    
+    /// One-letter short name of the option as in `-x`
     public var shortName: String?
     
+    /// Usage message of this option
     public let usage: String?
     
     public init(longName: String? = nil, shortName: String? = nil, usage: String? = nil) {

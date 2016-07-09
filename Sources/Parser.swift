@@ -24,6 +24,10 @@ public enum ParseError: ErrorProtocol {
     case missingRequiredArgument(Argument)
 }
 
+// ----------------------------------------
+// MARK: Internal
+// ----------------------------------------
+
 protocol Parsable: class {
     var parser: Parser { get }
     
@@ -50,7 +54,7 @@ protocol Parser {
     /// Parse and take current value
     func parseValue(_ value: String) throws
     
-    /// Finish current parsing when `canTakeValue==false` or another argument parsing starts
+    /// Finish current parsing when `!canTakeValue` or another argument parsing starts
     func finishParsing() throws
     
     /// Validate the receiver after all arguments are parsed
@@ -59,10 +63,7 @@ protocol Parser {
 
 extension Parser {
     
-    func finishParsing() throws {
-        try validate()
-    }
+    func finishParsing() throws { }
     
-    func validate() throws {
-    }
+    func validate() throws { }
 }

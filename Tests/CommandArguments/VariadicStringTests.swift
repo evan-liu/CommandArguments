@@ -37,7 +37,7 @@ class VariadicStringTests: XCTestCase {
     func testVariadicStringOption() {
         struct TestArgs: CommandArguments {
             var a = StringOption()
-            var b = VariadicStringOption()
+            var b = VariadicStringOption(minCount: 3)
             var c = BoolOption()
         }
         
