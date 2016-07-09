@@ -3,15 +3,15 @@ import CommandArguments
 
 class EnumTests: XCTestCase {
     
-    enum Platform: String, ArgumentEnum {
+    enum Platform: String {
         case iOS, watchOS, maxOS
     }
-    enum Server: String, ArgumentEnum {
+    enum Server: String {
         case dev, staging, production
     }
     struct TestArgs: CommandArguments {
-        var platform = EnumArgument<Platform>()
-        var server = EnumOption<Server>()
+        var platform = CustomArgument<Platform>()
+        var server = CustomOption<Server>()
     }
     
     func testEnumArguments() {
