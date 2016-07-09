@@ -2,13 +2,12 @@ import XCTest
 import CommandArguments
 
 class CommandArgumentsTests: XCTestCase {
+    struct TestArgs: CommandArguments {
+        var a = BoolOption()
+        var b = BoolOption()
+    }
     
-    func testParse() {
-        struct TestArgs: CommandArguments {
-            var a = BoolOption()
-            var b = BoolOption()
-        }
-        
+    func testParseArraySlice() {
         let args = ["test", "-a", "-b"]
         
         var args1 = TestArgs()
@@ -27,12 +26,7 @@ class CommandArgumentsTests: XCTestCase {
         XCTAssertFalse(args3.b.value)
     }
 
-    func testParseFrom() {
-        struct TestArgs: CommandArguments {
-            var a = BoolOption()
-            var b = BoolOption()
-        }
-        
+    func testParseArray() {
         var args1 = TestArgs()
         try! args1.parse(["test", "-a", "-b"], from: 1)
         XCTAssertTrue(args1.a.value)
@@ -47,6 +41,13 @@ class CommandArgumentsTests: XCTestCase {
         try! args3.parse(["test", "-a", "-b"], from: 3)
         XCTAssertFalse(args3.a.value)
         XCTAssertFalse(args3.b.value)
+    }
+    
+    func testParseString() {
+        var args1 = TestArgs()
+        try! args1.parse("test -a  -b", from: 1)
+        XCTAssertTrue(args1.a.value)
+        XCTAssertTrue(args1.b.value)
     }
 
 }

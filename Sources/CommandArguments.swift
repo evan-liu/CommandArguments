@@ -221,6 +221,8 @@ extension CommandArguments {
         let endIndex = args.endIndex
         for i in args.startIndex..<endIndex {
             var arg = args[i]
+            guard !arg.isEmpty else { continue }
+            
             var characters = arg.characters
             
             // Argument or option value (not start with `-`)
