@@ -3,11 +3,19 @@ import Foundation
 /// Required `Argument` taking one `String`
 public class RequiredArgument: Argument {
     public var value: String!
+    
+    public override init(name: String? = nil, usage: String? = nil) {
+        super.init(name: name, usage: usage)
+    }
 }
 
 /// Required `Option` taking one `String`
 public class StringOption: Option {
     public var value: String!
+    
+    public override init(longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        super.init(longName: longName, shortName: shortName, usage: usage)
+    }
 }
 
 // ----------------------------------------

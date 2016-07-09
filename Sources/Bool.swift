@@ -3,6 +3,10 @@ import Foundation
 /// `Bool` flags
 public class BoolOption: Option {
     public var value: Bool = false
+    
+    public override init(longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        super.init(longName: longName, shortName: shortName, usage: usage)
+    }
 }
 
 // ----------------------------------------

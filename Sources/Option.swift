@@ -1,6 +1,6 @@
 import Foundation
 
-/// Base class for `Option`s
+/// Abstract class for `Option`s
 public class Option {
     
     /// Long name of the option as in `--x`
@@ -12,7 +12,8 @@ public class Option {
     /// Usage message of this option
     public let usage: String?
     
-    public init(longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+    /// Internal `init` for subclasses
+    init(longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
         self.longName = longName
         self.shortName = shortName
         self.usage = usage
