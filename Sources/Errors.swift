@@ -29,10 +29,10 @@ public enum ParseError: ErrorProtocol {
     case invalidArgument(String)
     
     /// Throws when required option is missing
-    case missingRequiredOption(Option)
+    case missingRequiredOption(String)
     
     /// Throws when required argument is missing
-    case missingRequiredArgument(Argument)
+    case missingRequiredArgument(String)
 }
 
 extension TypeError: CustomStringConvertible {
@@ -59,10 +59,10 @@ extension ParseError: CustomStringConvertible {
             return "Invalid option \(name)"
         case .invalidArgument(let value):
             return "Invalid argument value \(value)"
-        case .missingRequiredOption(let option):
-            return "Missing required option \(option.longName ?? option.shortName!)"
-        case .missingRequiredArgument(let argument):
-            return "Missing required argument \(argument.name!)"
+        case .missingRequiredOption(let name):
+            return "Missing required option \(name)"
+        case .missingRequiredArgument(let name):
+            return "Missing required argument \(name)"
         }
     }
 }
