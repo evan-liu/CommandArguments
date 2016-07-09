@@ -122,6 +122,31 @@ class OptionTests: XCTestCase {
         } catch {
             XCTFail()
         }
-
     }
+    
+    func testCombinedShortOptions() {
+        struct TestArgs: CommandArguments {
+            var a = BoolOption()
+            var b = BoolOption()
+            var c = StringOption()
+            var d = BoolOption()
+        }
+        
+        var args1 = TestArgs()
+        try! args1.parse("-abc x")
+        
+        XCTAssertTrue(args1.a.value)
+        XCTAssertTrue(args1.b.value)
+        XCTAssertEqual(args1.c.value, "x")
+        XCTAssertFalse(args1.d.value)
+        
+        var args2 = TestArgs()
+        try! args2.parse("-ab -c x")
+        
+        XCTAssertTrue(args2.a.value)
+        XCTAssertTrue(args2.b.value)
+        XCTAssertEqual(args2.c.value, "x")
+        XCTAssertFalse(args2.d.value)
+    }
+    
 }

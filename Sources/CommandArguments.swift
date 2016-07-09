@@ -211,10 +211,10 @@ extension CommandArguments {
                 return try activateOption(withName: String(characters))
             }
             
-            // -abc: a=true, b=true, c=true
+            // -abc -> -a -b -c
             try characters.forEach {
+                try checkActiveOption() // Finish previous one
                 try activateOption(withName: String($0))
-                try checkActiveOption()
             }
         }
         
