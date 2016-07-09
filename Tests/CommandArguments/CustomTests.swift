@@ -3,10 +3,10 @@ import CommandArguments
 
 class EnumTests: XCTestCase {
     
-    enum Platform: String {
+    enum Platform: String, ArgumentConvertible {
         case iOS, watchOS, maxOS
     }
-    enum Server: String {
+    enum Server: String, ArgumentConvertible {
         case dev, staging, production
     }
     struct TestArgs: CommandArguments {

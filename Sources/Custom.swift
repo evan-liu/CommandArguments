@@ -1,14 +1,25 @@
 import Foundation
 
+/// A type that can be initialized with an argument value.
+public protocol ArgumentConvertible {
+    static func parseArgument(_ value: String) -> Self?
+}
+
+extension RawRepresentable where RawValue == String {
+    public static func parseArgument(_ value: String) -> Self? {
+        return Self.init(rawValue: value)
+    }
+}
+
 /// `Argument` with `enum`
-public class CustomArgument<T: RawRepresentable where T.RawValue == String>: Argument {
+public class CustomArgument<T: ArgumentConvertible>: Argument {
     public var value: T!
     
     public init() { }
 }
 
 /// `Option` with `enum`
-public class CustomOption<T: RawRepresentable where T.RawValue == String>: Option {
+public class CustomOption<T: ArgumentConvertible>: Option {
     public var value: T!
     
     public init() { }
@@ -19,11 +30,9 @@ public class CustomOption<T: RawRepresentable where T.RawValue == String>: Optio
 // ----------------------------------------
 
 protocol CustomArgumentProtocol: Parsable {
-    associatedtype CustomType
+    associatedtype CustomType: ArgumentConvertible
     
     var value: CustomType! { get set }
-    
-    func parseValue(_ value: String)
 }
 
 class CustomArgumentParser<T: CustomArgumentProtocol>: Parser {
@@ -34,7 +43,7 @@ class CustomArgumentParser<T: CustomArgumentProtocol>: Parser {
     
     var canTakeValue = true
     func parseValue(_ value: String) {
-        target.parseValue(value)
+        target.value = T.CustomType.parseArgument(value)
         canTakeValue = false
     }
     func validate() throws {
@@ -48,13 +57,5 @@ extension CustomArgumentProtocol {
     }
 }
 
-extension CustomArgument: CustomArgumentProtocol {
-    func parseValue(_ value: String) {
-        self.value = T(rawValue: value)
-    }
-}
-extension CustomOption: CustomArgumentProtocol {
-    func parseValue(_ value: String) {
-        self.value = T(rawValue: value)
-    }
-}
+extension CustomArgument: CustomArgumentProtocol { }
+extension CustomOption: CustomArgumentProtocol { }
