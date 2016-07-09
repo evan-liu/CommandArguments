@@ -81,7 +81,7 @@ extension CommandArguments {
         try argumentFields.forEach { (name, argument) in
             checkFieldName(name, ofArgument: argument, withKnown: &knownArgumentNames)
             if argument.name == nil {
-                throw TypeError.missingOptionName(name)
+                throw TypeError.missingArgumentName(name)
             }
         }
         

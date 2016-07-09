@@ -68,10 +68,3 @@ myArgs.src.value    // ["input1", "input2", "input3"]
 myArgs.dest.value   // "output"
 myArgs.force.value  // true
 ```
-
-## TODO 
-
-- [ ] Print usage
-- [ ] Documentation
-- [ ] Enum options
-- [ ] Number options
