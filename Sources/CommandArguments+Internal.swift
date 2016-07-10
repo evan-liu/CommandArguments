@@ -76,7 +76,7 @@ extension CommandArguments {
         }
         
         // Parse options and operands
-        try fields.forEach { (name, value) in
+        for (name, value) in fields {
             if value is OptionProtocol {
                 let option = value as! OptionProtocol
                 try checkOptionName(option.name)
@@ -111,7 +111,7 @@ extension CommandArguments {
     private func parseOptions(_ options: [OptionProtocol], withArgs args: ArraySlice<String>, operandValues: inout [String]) throws {
         
         var parsers = [String: Parser]()
-        options.forEach { option in
+        for option in options {
             let parser = (option as! Parsable).parser
             if let longName = option.name.long {
                 parsers[longName] = parser
@@ -176,9 +176,9 @@ extension CommandArguments {
             }
             
             // -abc -> -a -b -c
-            try characters.forEach {
+            for character in characters {
                 try checkActiveOption() // Finish previous one
-                try activateOption(withName: String($0))
+                try activateOption(withName: String(character))
             }
         }
         
@@ -223,7 +223,7 @@ extension CommandArguments {
             try parseLongOption(characters)
         }
         try checkActiveOption()
-        try parsers.forEach { (_, parser) in
+        for (_, parser) in parsers {
             try parser.validate()
         }
     }
@@ -306,8 +306,8 @@ extension CommandArguments {
         }
         
         try checkActiveOperand()
-        try parsers.forEach {
-            try $0.validate()
+        for parser in parsers {
+            try parser.validate()
         }
     }
     
