@@ -1,12 +1,12 @@
 import Foundation
 
-/// Abstract class for `Argument`s
-public class Argument {
+/// Abstract class for `Operand`s
+public class Operand {
     
-    /// Name of the argument. Field name will be used by default.
+    /// Name of the receiver. Field name will be used by default.
     public var name: String?
     
-    /// Usage message of this argument.
+    /// Usage message of the receiver.
     public let usage: String?
     
     /// Internal `init` for subclasses.
@@ -19,14 +19,14 @@ public class Argument {
 // ----------------------------------------
 // MARK: Internal
 // ----------------------------------------
-protocol TrailingArgument {
+protocol TrailingOperand {
     var valueCount: Int { get }
 }
 
-extension RequiredArgument: TrailingArgument {
+extension RequiredOperand: TrailingOperand {
     var valueCount: Int { return 1 }
 }
 
-extension MultiArgument: TrailingArgument {
+extension MultiOperand: TrailingOperand {
     var valueCount: Int { return count }
 }

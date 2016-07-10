@@ -5,8 +5,8 @@ class ArgumentTests: XCTestCase {
     
     func testDefaultNames() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument()
-            var b = RequiredArgument()
+            var a = RequiredOperand()
+            var b = RequiredOperand()
         }
         
         var args = TestArgs()
@@ -18,21 +18,21 @@ class ArgumentTests: XCTestCase {
     
     func testDuplicatedNames() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument(name: "b")
-            var b = RequiredArgument(name: "b")
+            var a = RequiredOperand(name: "b")
+            var b = RequiredOperand(name: "b")
         }
         var args = TestArgs()
         do {
             try args.parse([])
             XCTFail()
-        } catch TypeError.duplicatedArgumentName(_) {
+        } catch TypeError.duplicatedOperandName(_) {
         } catch { XCTFail() }
     }
 
     func testRequiredArgument() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument()
-            var b = RequiredArgument()
+            var a = RequiredOperand()
+            var b = RequiredOperand()
         }
         
         var args = TestArgs()
@@ -44,35 +44,35 @@ class ArgumentTests: XCTestCase {
     
     func testRequiredArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument()
+            var a = RequiredOperand()
         }
         
         var args = TestArgs()
         do {
             try args.parse([])
             XCTFail()
-        } catch ParseError.missingRequiredArgument(_) {
+        } catch ParseError.missingRequiredOperand(_) {
         } catch { XCTFail() }
     }
     
     func testMissingArguments() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument()
-            var b = RequiredArgument()
+            var a = RequiredOperand()
+            var b = RequiredOperand()
         }
         
         var args = TestArgs()
         do {
             try args.parse(["1"])
             XCTFail()
-        } catch ParseError.missingRequiredArgument(_) {
+        } catch ParseError.missingRequiredOperand(_) {
         } catch { XCTFail() }
     }
     
     func testTrailingArgument() {
         struct TestArgs: CommandArguments {
-            var a = VariadicArgument()
-            var b = RequiredArgument()
+            var a = VariadicOperand()
+            var b = RequiredOperand()
         }
         
         var args = TestArgs()
@@ -83,8 +83,8 @@ class ArgumentTests: XCTestCase {
     
     func testTrailingMultiArgument() {
         struct TestArgs: CommandArguments {
-            var a = VariadicArgument()
-            var b = MultiArgument(count: 2)
+            var a = VariadicOperand()
+            var b = MultiOperand(count: 2)
         }
         
         var args = TestArgs()

@@ -1,7 +1,7 @@
 import Foundation
 
-/// Required `Argument` taking multiple `String`s
-public class MultiArgument: Argument {
+/// Required `Operand` taking multiple `String`s
+public class MultiOperand: Operand {
     public var value = [String]()
     public let count: Int
     
@@ -54,5 +54,5 @@ extension MultiStringArgumentProtocol {
     }
 }
 
-extension MultiArgument: MultiStringArgumentProtocol { }
+extension MultiOperand: MultiStringArgumentProtocol { }
 extension MultiStringOption: MultiStringArgumentProtocol { }

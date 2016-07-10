@@ -11,8 +11,8 @@ extension RawRepresentable where RawValue == String {
     }
 }
 
-/// `Argument` with `enum`
-public class CustomArgument<T: ArgumentConvertible>: Argument {
+/// `Operand` with `enum`
+public class CustomOperand<T: ArgumentConvertible>: Operand {
     public var value: T!
     
     public init() { }
@@ -57,5 +57,5 @@ extension CustomArgumentProtocol {
     }
 }
 
-extension CustomArgument: CustomArgumentProtocol { }
+extension CustomOperand: CustomArgumentProtocol { }
 extension CustomOption: CustomArgumentProtocol { }

@@ -6,7 +6,7 @@ public class Option {
     /// Long name of the option as in `--x`
     public var longName: String?
     
-    /// One-letter short name of the option as in `-x`
+    /// Single-letter short name of the option as in `-x`
     public var shortName: String?
     
     /// Usage message of this option

@@ -1,7 +1,7 @@
 import Foundation
 
-/// Optional `Argument` taking 0 or 1 `String`
-public class OptionalArgument: Argument {
+/// Optional `Operand` taking 0 or 1 `String`
+public class OptionalOperand: Operand {
     public var value: String?
     
     public init(`default`: String? = nil, name: String? = nil, usage: String? = nil) {
@@ -49,5 +49,5 @@ extension OptionalStringArgumentProtocol {
     }
 }
 
-extension OptionalArgument: OptionalStringArgumentProtocol { }
+extension OptionalOperand: OptionalStringArgumentProtocol { }
 extension OptionalStringOption: OptionalStringArgumentProtocol { }

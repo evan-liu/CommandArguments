@@ -10,7 +10,7 @@ class EnumTests: XCTestCase {
         case dev, staging, production
     }
     struct TestArgs: CommandArguments {
-        var platform = CustomArgument<Platform>()
+        var platform = CustomOperand<Platform>()
         var server = CustomOption<Server>()
     }
     
@@ -27,7 +27,7 @@ class EnumTests: XCTestCase {
         do {
             try args1.parse(["--server=dev"])
             XCTFail("no error throws")
-        } catch ParseError.missingRequiredArgument(_) {
+        } catch ParseError.missingRequiredOperand(_) {
         } catch {
             XCTFail("wrong error type \(error)")
         }

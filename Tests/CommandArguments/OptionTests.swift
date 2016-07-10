@@ -100,7 +100,7 @@ class OptionTests: XCTestCase {
     func testOptionStopper() {
         struct TestArgs: CommandArguments {
             var a = BoolOption()
-            var b = VariadicArgument()
+            var b = VariadicOperand()
         }
         
         var args = TestArgs()

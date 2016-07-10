@@ -1,7 +1,7 @@
 import Foundation
 
-/// Optional `Argument` taking 0 or many `String`s
-public class VariadicArgument: Argument {
+/// Optional `Operand` taking 0 or many `String`s
+public class VariadicOperand: Operand {
     public var value = [String]()
     public let minCount: Int?
     public let maxCount: Int?
@@ -65,5 +65,5 @@ extension VariadicStringArgumentProtocol {
     }
 }
 
-extension VariadicArgument: VariadicStringArgumentProtocol { }
+extension VariadicOperand: VariadicStringArgumentProtocol { }
 extension VariadicStringOption: VariadicStringArgumentProtocol { }

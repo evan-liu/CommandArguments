@@ -1,7 +1,7 @@
 import Foundation
 
-/// Required `Argument` taking one `String`
-public class RequiredArgument: Argument {
+/// Required `Operand` taking one `String`
+public class RequiredOperand: Operand {
     public var value: String!
     
     public override init(name: String? = nil, usage: String? = nil) {
@@ -48,5 +48,5 @@ extension StringArgumentProtocol {
     }
 }
 
-extension RequiredArgument: StringArgumentProtocol { }
+extension RequiredOperand: StringArgumentProtocol { }
 extension StringOption: StringArgumentProtocol { }

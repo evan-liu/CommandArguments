@@ -5,8 +5,8 @@ class OptionalStringTests: XCTestCase {
 
     func testOptionalArgument() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument()
-            var b = OptionalArgument()
+            var a = RequiredOperand()
+            var b = OptionalOperand()
         }
         
         var args1 = TestArgs()

@@ -5,8 +5,8 @@ class VariadicStringTests: XCTestCase {
     
     func testVariadicArgument() {
         struct TestArgs: CommandArguments {
-            var a = RequiredArgument()
-            var b = VariadicArgument()
+            var a = RequiredOperand()
+            var b = VariadicOperand()
         }
         
         var args = TestArgs()
@@ -16,21 +16,21 @@ class VariadicStringTests: XCTestCase {
     
     func testVariadicArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = VariadicArgument(minCount: 2, maxCount: 3)
+            var a = VariadicOperand(minCount: 2, maxCount: 3)
         }
         
         var args1 = TestArgs()
         do {
             try args1.parse(["1"])
             XCTFail()
-        } catch ParseError.missingRequiredArgument(_) {
+        } catch ParseError.missingRequiredOperand(_) {
         } catch { XCTFail() }
         
         var args2 = TestArgs()
         do {
             try args2.parse(["1", "2", "3", "4"])
             XCTFail()
-        } catch ParseError.invalidArgument(_) {
+        } catch ParseError.invalidOperand(_) {
         } catch { XCTFail() }
     }
     
@@ -70,7 +70,7 @@ class VariadicStringTests: XCTestCase {
         do {
             try args.parse(["-a", "1", "2", "3", "4", "5"])
             XCTFail()
-        } catch ParseError.invalidArgument(_) {
+        } catch ParseError.invalidOperand(_) {
         } catch {
             XCTFail()
         }

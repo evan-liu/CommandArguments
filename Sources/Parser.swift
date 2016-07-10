@@ -6,15 +6,15 @@ protocol Parsable: class {
     var missingError: ErrorProtocol { get }
 }
 
-extension Argument {
-    var missingError: ErrorProtocol {
-        return ParseError.missingRequiredArgument(name!)
-    }
-}
-
 extension Option {
     var missingError: ErrorProtocol {
         return ParseError.missingRequiredOption(longName ?? shortName!)
+    }
+}
+
+extension Operand {
+    var missingError: ErrorProtocol {
+        return ParseError.missingRequiredOperand(name!)
     }
 }
 
@@ -44,31 +44,31 @@ extension CommandArguments {
 
     mutating func _parse(_ args: ArraySlice<String>) throws {
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
-        let (options, arguments) = try parseFields(fields)
+        let (options, operands) = try parseFields(fields)
         
-        var argumentValues = [String]()
-        try parseOptions(options, withArgs: args, argumentValues: &argumentValues)
-        try parseArguments(arguments, withValues: argumentValues)
+        var operandValues = [String]()
+        try parseOptions(options, withArgs: args, operandValues: &operandValues)
+        try parseOperands(operands, withValues: operandValues)
     }
     
     /// Parse fileds and return `Parser`s
-    private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Argument]) {
+    private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Operand]) {
         var knownOptionNames = Set<String>()
-        var knownArgumentNames = Set<String>()
+        var knownOperandNames = Set<String>()
         
         var optionFields = [(String?, Option)]()
-        var argumentFields = [(String?, Argument)]()
+        var operandFields = [(String?, Operand)]()
         
-        // Parse options and arguments
+        // Parse options and operands
         try fields.forEach { (name, value) in
             if value is Option {
                 let option = value as! Option
                 try checkOptionNames(long: option.longName, short: option.shortName, withKnown: &knownOptionNames)
                 optionFields.append((name, option))
             } else {
-                let argument = value as! Argument
-                try checkArgumentName(argument.name, withKnown: &knownArgumentNames)
-                argumentFields.append((name, argument))
+                let operand = value as! Operand
+                try checkOperandName(operand.name, withKnown: &knownOperandNames)
+                operandFields.append((name, operand))
             }
         }
         
@@ -80,15 +80,15 @@ extension CommandArguments {
             }
         }
         
-        // Check argument default names (using filed name) and name missing error
-        try argumentFields.forEach { (name, argument) in
-            checkFieldName(name, ofArgument: argument, withKnown: &knownArgumentNames)
-            if argument.name == nil {
-                throw TypeError.missingArgumentName(name)
+        // Check operand default names (using filed name) and name missing error
+        try operandFields.forEach { (name, operand) in
+            checkFieldName(name, ofOperand: operand, withKnown: &knownOperandNames)
+            if operand.name == nil {
+                throw TypeError.missingOperandName(name)
             }
         }
         
-        return (optionFields.map { $0.1 }, argumentFields.map { $0.1 } )
+        return (optionFields.map { $0.1 }, operandFields.map { $0.1 } )
     }
     
     /// Check duplicated option names
@@ -113,11 +113,11 @@ extension CommandArguments {
         }
     }
     
-    /// Check duplicated argument names
-    private func checkArgumentName(_ name: String?, withKnown names: inout Set<String>) throws {
+    /// Check duplicated operand names
+    private func checkOperandName(_ name: String?, withKnown names: inout Set<String>) throws {
         guard let name = name else { return }
         guard !names.contains(name) else {
-            throw TypeError.duplicatedArgumentName(name)
+            throw TypeError.duplicatedOperandName(name)
         }
         names.insert(name)
     }
@@ -138,16 +138,16 @@ extension CommandArguments {
         }
     }
     
-    /// Use field name as default argument name
-    private func checkFieldName(_ name: String?, ofArgument argument: Argument, withKnown names: inout Set<String>) {
+    /// Use field name as default operand name
+    private func checkFieldName(_ name: String?, ofOperand operand: Operand, withKnown names: inout Set<String>) {
         guard let name = name where !name.isEmpty && !names.contains(name) else { return }
-        guard argument.name == nil else { return }
-        argument.name = name
+        guard operand.name == nil else { return }
+        operand.name = name
         names.insert(name)
     }
     
-    /// Parse options and return argument values
-    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, argumentValues: inout [String]) throws {
+    /// Parse options and return operand values
+    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, operandValues: inout [String]) throws {
         
         var parsers = [String: Parser]()
         options.forEach { option in
@@ -228,12 +228,12 @@ extension CommandArguments {
             
             var characters = arg.characters
             
-            // Argument or option value (not start with `-`)
+            // Operand or option value (not start with `-`)
             if characters.first != "-" {
                 if activeOptionParser != nil {
                     try checkActiveOption(with: arg)
                 } else {
-                    argumentValues.append(arg)
+                    operandValues.append(arg)
                 }
                 continue
             }
@@ -242,7 +242,7 @@ extension CommandArguments {
             if arg == "--" {
                 let nextIndex = i + 1
                 if nextIndex < endIndex {
-                    argumentValues.append(contentsOf: args[nextIndex..<endIndex])
+                    operandValues.append(contentsOf: args[nextIndex..<endIndex])
                 }
                 break
             }
@@ -267,61 +267,61 @@ extension CommandArguments {
         }
     }
     
-    private func parseArguments(_ arguments: [Argument], withValues values: [String]) throws {
-        if values.isEmpty && arguments.isEmpty { return } // No arguments
-        if arguments.isEmpty {
-            throw ParseError.invalidArgument(values[0])
+    private func parseOperands(_ operands: [Operand], withValues values: [String]) throws {
+        if values.isEmpty && operands.isEmpty { return } // No operands
+        if operands.isEmpty {
+            throw ParseError.invalidOperand(values[0])
         }
         if values.isEmpty {
-            throw arguments[0].missingError
+            throw operands[0].missingError
         }
         
-        let parsers = arguments.map { ($0 as! Parsable).parser }
+        let parsers = operands.map { ($0 as! Parsable).parser }
         
-        var nextArgumentIndex = 0
-        var lastArgumentIndex = arguments.endIndex - 1
-        var activeArgumentIndex: Int?
+        var nextOperandIndex = 0
+        var lastOperandIndex = operands.endIndex - 1
+        var activeOperandIndex: Int?
         
-        func checkActiveArgument(with value: String? = nil) throws {
-            guard let index = activeArgumentIndex else { return }
+        func checkActiveOperand(with value: String? = nil) throws {
+            guard let index = activeOperandIndex else { return }
             let parser = parsers[index]
             
             if let value = value {
                 try parser.parseValue(value)
                 if !parser.canTakeValue {
                     try parser.finishParsing()
-                    activeArgumentIndex = nil
+                    activeOperandIndex = nil
                 }
             } else {
                 try parser.finishParsing()
-                activeArgumentIndex = nil
+                activeOperandIndex = nil
             }
         }
         
-        func parseArgument(_ value: String) throws {
-            guard nextArgumentIndex <= lastArgumentIndex else {
-                throw ParseError.invalidArgument(value)
+        func parseOperand(_ value: String) throws {
+            guard nextOperandIndex <= lastOperandIndex else {
+                throw ParseError.invalidOperand(value)
             }
             
-            let parser = parsers[nextArgumentIndex]
+            let parser = parsers[nextOperandIndex]
             try parser.parseValue(value)
             if parser.canTakeValue {
-                activeArgumentIndex = nextArgumentIndex
+                activeOperandIndex = nextOperandIndex
             } else {
                 try parser.finishParsing()
             }
             
-            nextArgumentIndex += 1
+            nextOperandIndex += 1
         }
         
         var valueEndIndex = values.endIndex
-        func checkTrainingArgument() throws {
-            guard arguments.count > 1 else { return }
-            guard let argument = arguments.last! as? TrailingArgument else { return }
+        func checkTrainingOperand() throws {
+            guard operands.count > 1 else { return }
+            guard let operand = operands.last! as? TrailingOperand else { return }
             
-            let count = argument.valueCount
+            let count = operand.valueCount
             guard values.count >= count else {
-                throw arguments.last!.missingError
+                throw operands.last!.missingError
             }
             
             let parser = parsers.last!
@@ -331,20 +331,20 @@ extension CommandArguments {
             try parser.finishParsing()
             
             valueEndIndex -= count
-            lastArgumentIndex -= 1
+            lastOperandIndex -= 1
         }
-        try checkTrainingArgument()
+        try checkTrainingOperand()
         
         for i in 0 ..< valueEndIndex {
             let value = values[i]
-            if activeArgumentIndex != nil {
-                try checkActiveArgument(with: value)
+            if activeOperandIndex != nil {
+                try checkActiveOperand(with: value)
             } else {
-                try parseArgument(value)
+                try parseOperand(value)
             }
         }
         
-        try checkActiveArgument()
+        try checkActiveOperand()
         try parsers.forEach {
             try $0.validate()
         }

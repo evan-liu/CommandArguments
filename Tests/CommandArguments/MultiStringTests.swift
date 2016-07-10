@@ -5,8 +5,8 @@ class MultiStringTests: XCTestCase {
 
     func testMultiArgument() {
         struct TestArgs: CommandArguments {
-            var a = MultiArgument(count: 2)
-            var b = MultiArgument(count: 3)
+            var a = MultiOperand(count: 2)
+            var b = MultiOperand(count: 3)
         }
         
         var args = TestArgs()
@@ -18,21 +18,21 @@ class MultiStringTests: XCTestCase {
     
     func testMultiArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = MultiArgument(count: 2)
+            var a = MultiOperand(count: 2)
         }
         
         var args1 = TestArgs()
         do {
             try args1.parse(["1"])
             XCTFail()
-        } catch ParseError.missingRequiredArgument(_) {
+        } catch ParseError.missingRequiredOperand(_) {
         } catch { XCTFail() }
         
         var args2 = TestArgs()
         do {
             try args2.parse(["1", "2", "3"])
             XCTFail()
-        } catch ParseError.invalidArgument(_) {
+        } catch ParseError.invalidOperand(_) {
         } catch { XCTFail() }
     }
     
@@ -80,7 +80,7 @@ class MultiStringTests: XCTestCase {
         do {
             try args.parse(["-a", "1", "2", "3", "4"])
             XCTFail()
-        } catch ParseError.invalidArgument(_) {
+        } catch ParseError.invalidOperand(_) {
         } catch { XCTFail() }
     }
     
