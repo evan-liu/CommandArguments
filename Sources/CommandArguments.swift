@@ -54,9 +54,3 @@ extension String: ArgumentConvertible {
         return value.isEmpty ? nil : value
     }
 }
-
-extension Bool: ArgumentConvertible {
-    public static func parseArgument(_ value: String) -> Bool? {
-        return value == "true"
-    }
-}

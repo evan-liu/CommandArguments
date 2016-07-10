@@ -17,6 +17,8 @@
 		201713251D321C26004E92C3 /* TrailingOperandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201713241D321C26004E92C3 /* TrailingOperandTests.swift */; };
 		201713271D321C5E004E92C3 /* Variadic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201713261D321C5E004E92C3 /* Variadic.swift */; };
 		201713291D321E60004E92C3 /* VariadicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201713281D321E60004E92C3 /* VariadicTests.swift */; };
+		2017132B1D3224A3004E92C3 /* Flag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2017132A1D3224A3004E92C3 /* Flag.swift */; };
+		2017132D1D32257C004E92C3 /* FlagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2017132C1D32257C004E92C3 /* FlagTests.swift */; };
 		207DC7DB1D30F59800989E1E /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207DC7DA1D30F59800989E1E /* Errors.swift */; };
 		20C5E2201D2CFBD500B20FB5 /* CommandArgumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20C5E21F1D2CFBD500B20FB5 /* CommandArgumentsTests.swift */; };
 		_LinkFileRef_CommandArguments_via_CommandArgumentsTestSuite /* CommandArguments.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "_____Product_CommandArguments" /* CommandArguments.framework */; };
@@ -44,6 +46,8 @@
 		201713241D321C26004E92C3 /* TrailingOperandTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrailingOperandTests.swift; sourceTree = "<group>"; };
 		201713261D321C5E004E92C3 /* Variadic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Variadic.swift; sourceTree = "<group>"; };
 		201713281D321E60004E92C3 /* VariadicTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VariadicTests.swift; sourceTree = "<group>"; };
+		2017132A1D3224A3004E92C3 /* Flag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flag.swift; sourceTree = "<group>"; };
+		2017132C1D32257C004E92C3 /* FlagTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlagTests.swift; sourceTree = "<group>"; };
 		207DC7DA1D30F59800989E1E /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		20C5E21F1D2CFBD500B20FB5 /* CommandArgumentsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandArgumentsTests.swift; sourceTree = "<group>"; };
 		20E8609F1D2EEB8900E2F394 /* Doc.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Doc.playground; sourceTree = "<group>"; };
@@ -129,6 +133,7 @@
 				207DC7DA1D30F59800989E1E /* Errors.swift */,
 				__PBXFileRef_Sources/CommandArguments.swift /* CommandArguments.swift */,
 				2017130E1D31F755004E92C3 /* CommandArguments+Internal.swift */,
+				2017132A1D3224A3004E92C3 /* Flag.swift */,
 				201713181D32158A004E92C3 /* Required.swift */,
 				2017131A1D3215CA004E92C3 /* Optional.swift */,
 				2017131E1D3217F0004E92C3 /* Multiple.swift */,
@@ -143,6 +148,7 @@
 			children = (
 				__PBXFileRef_CommandArgumentsTestSuite_Info.plist /* CommandArgumentsTestSuite_Info.plist */,
 				20C5E21F1D2CFBD500B20FB5 /* CommandArgumentsTests.swift */,
+				2017132C1D32257C004E92C3 /* FlagTests.swift */,
 				201713141D320A7B004E92C3 /* RequiredTests.swift */,
 				2017131C1D32174A004E92C3 /* OptionalTests.swift */,
 				201713201D3219D1004E92C3 /* MultipleTests.swift */,
@@ -235,6 +241,7 @@
 				2017131F1D3217F0004E92C3 /* Multiple.swift in Sources */,
 				201713191D32158A004E92C3 /* Required.swift in Sources */,
 				2017130F1D31F755004E92C3 /* CommandArguments+Internal.swift in Sources */,
+				2017132B1D3224A3004E92C3 /* Flag.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +252,7 @@
 				201713151D320A7B004E92C3 /* RequiredTests.swift in Sources */,
 				201713211D3219D1004E92C3 /* MultipleTests.swift in Sources */,
 				201713291D321E60004E92C3 /* VariadicTests.swift in Sources */,
+				2017132D1D32257C004E92C3 /* FlagTests.swift in Sources */,
 				20C5E2201D2CFBD500B20FB5 /* CommandArgumentsTests.swift in Sources */,
 				201713251D321C26004E92C3 /* TrailingOperandTests.swift in Sources */,
 				2017131D1D32174A004E92C3 /* OptionalTests.swift in Sources */,
