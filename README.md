@@ -5,66 +5,55 @@ Strong typed arguments parsing library based on Swift reflection (`Mirror`) API.
 [![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
 `Swift 3.0 Preview 1` (`Xcode-beta 1`) 
 
-## Example
+## Example 1
+
+`$ build ios --version=1.0 --clean`
 
 ```swift
 struct BuildArguments: CommandArguments {
-    var platform = VariadicArgument(minCount: 1)
-    var buildConfig = OptionalStringOption(longName: "build-config")
-    var release = BoolOption(shortName: "r")
+    var platform = Operand()
+    var version = Option()
+    var clean = Flag()
 }
 
 var buildArgs = BuildArguments()
 do {
-    try buildArgs.parse("ios android --build-config=build.json -r")
+    try buildArgs.parse(Process.arguments, from: 1)
 } catch {
     print(error)
 }
 
-buildArgs.platform.value    // ["ios", "android"]
-buildArgs.buildConfig.value // "build.json"
-buildArgs.release.value     // true
+buildArgs.platform.value    // "ios"
+buildArgs.version.value     // "1.0"
+buildArgs.clean.value       // true
 ```
 
-## Usage
+## Example 2
 
-### Define a type confirming `CommandArguments` protocol with `Argument` and/or `Option` fields
+`$ deploy -cs prod watchOS`
 
 ```swift
-struct MyArgs: CommandArguments {
-    var src = VariadicArgument(minCount: 1)
-    var dest = RequiredArgument()
-    var force = BoolOption(shortName: "f")
+struct DeployArguments: CommandArguments {
+    enum Platform: String, ArgumentConvertible {
+        case iOS, watchOS, macOS
+    }
+    enum Server: String, ArgumentConvertible {
+        case dev, staging, prod
+    }
+
+    var platform = OperandT<Platform>()
+    var server = DefaultedOptionT<Server>(.dev, shortName: "s")
+    var clean = Flag(shortName: "c")
 }
-```
 
-### Init and parse with arguments
-
-```swift
-var myArgs = MyArgs()
+var deployArgs = DeployArguments()
 do {
-    try myArgs.parse("input1 input2 input3 output -f")
+    try deployArgs.parse(Process.arguments.dropFirst())
 } catch {
     print(error)
 }
-```
 
-or
-
-```swift
-try myArgs.parse(Process.arguments.dropFirst())
-```
-
-or
-
-```swift
-try myArgs.parse(Process.arguments, from: 1)
-```
-
-### Read values
-
-```swift
-myArgs.src.value    // ["input1", "input2", "input3"]
-myArgs.dest.value   // "output"
-myArgs.force.value  // true
+deployArgs.platform.value   // .watchOS
+deployArgs.server.value     // .prod
+deployArgs.clean.value      // true
 ```
