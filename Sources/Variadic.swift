@@ -1,8 +1,7 @@
 import Foundation
 
-/// Optional `Option` taking 0 or many `String`s
-public class VariadicOption {
-    public var value = [String]()
+public class VariadicOptionT<T: ArgumentConvertible> {
+    public var value = [T]()
     
     let minCount: Int?
     let maxCount: Int?
@@ -16,12 +15,17 @@ public class VariadicOption {
         self.name = (longName, shortName)
         self.usage = usage
     }
+
 }
 
+public final class VariadicOption: VariadicOptionT<String> {
+    public override init(minCount: Int? = nil, maxCount: Int? = nil, longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        super.init(minCount: minCount, maxCount: maxCount, longName: longName, shortName: shortName, usage: usage)
+    }
+}
 
-/// Optional `Operand` taking 0 or many `String`s
-public class VariadicOperand {
-    public var value = [String]()
+public class VariadicOperandT<T: ArgumentConvertible> {
+    public var value = [T]()
     
     public let minCount: Int?
     public let maxCount: Int?
@@ -33,6 +37,12 @@ public class VariadicOperand {
         self.maxCount = maxCount
         self.name = name
         self.usage = usage
+    }
+}
+
+public final class VariadicOperand: VariadicOperandT<String> {
+    public override init(minCount: Int? = nil, maxCount: Int? = nil, name: String? = nil, usage: String? = nil) {
+        super.init(minCount: minCount, maxCount: maxCount, name: name, usage: usage)
     }
 }
 
@@ -80,5 +90,5 @@ extension VariadicArgumentProtocol {
     }
 }
 
-extension VariadicOption: OptionProtocol, VariadicArgumentProtocol { }
-extension VariadicOperand: OperandProtocol, VariadicArgumentProtocol { }
+extension VariadicOptionT: OptionProtocol, VariadicArgumentProtocol { }
+extension VariadicOperandT: OperandProtocol, VariadicArgumentProtocol { }

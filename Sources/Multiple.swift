@@ -1,7 +1,7 @@
 import Foundation
 
-public class MultipleOption {
-    public var value = [String]()
+public class MultipleOptionT<T: ArgumentConvertible> {
+    public var value = [T]()
     
     let count: Int
     
@@ -15,8 +15,14 @@ public class MultipleOption {
     
 }
 
-public class MultipleOperand {
-    public var value = [String]()
+public final class MultipleOption: MultipleOptionT<String> {
+    public override init(count: Int, longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        super.init(count: count, longName: longName, shortName: shortName, usage: usage)
+    }
+}
+
+public class MultipleOperandT<T: ArgumentConvertible> {
+    public var value = [T]()
     
     let count: Int
     
@@ -27,7 +33,12 @@ public class MultipleOperand {
         self.name = name
         self.usage = usage
     }
-    
+}
+
+public final class MultipleOperand: MultipleOperandT<String> {
+    public override init(count: Int, name: String? = nil, usage: String? = nil) {
+        super.init(count: count, name: name, usage: usage)
+    }
 }
 
 // ----------------------------------------
@@ -69,5 +80,5 @@ extension MultipleArgumentProtocol {
     }
 }
 
-extension MultipleOption: OptionProtocol, MultipleArgumentProtocol { }
-extension MultipleOperand: OperandProtocol, MultipleArgumentProtocol { }
+extension MultipleOptionT: OptionProtocol, MultipleArgumentProtocol { }
+extension MultipleOperandT: OperandProtocol, MultipleArgumentProtocol { }

@@ -1,7 +1,7 @@
 import Foundation
 
-public class Option {
-    public var value: String!
+public class OptionT<T: ArgumentConvertible> {
+    public var value: T!
     
     var name: OptionName
     let usage: String?
@@ -9,11 +9,16 @@ public class Option {
         self.name = (longName, shortName)
         self.usage = usage
     }
-    
 }
 
-public class Operand {
-    public var value: String!
+public final class Option: OptionT<String> {
+    public override init(longName: String? = nil, shortName: String? = nil, usage: String? = nil) {
+        super.init(longName: longName, shortName: shortName, usage: usage)
+    }
+}
+
+public class OperandT<T: ArgumentConvertible> {
+    public var value: T!
     
     var name: String?
     let usage: String?
@@ -22,6 +27,12 @@ public class Operand {
         self.usage = usage
     }
     
+}
+
+public final class Operand: OperandT<String> {
+    public override init(name: String? = nil, usage: String? = nil) {
+        super.init(name: name, usage: usage)
+    }
 }
 
 // ----------------------------------------
@@ -54,5 +65,5 @@ extension RequiredArgumentProtocol {
     }
 }
 
-extension Option: OptionProtocol, RequiredArgumentProtocol { }
-extension Operand: OperandProtocol, RequiredArgumentProtocol { }
+extension OptionT: OptionProtocol, RequiredArgumentProtocol { }
+extension OperandT: OperandProtocol, RequiredArgumentProtocol { }
