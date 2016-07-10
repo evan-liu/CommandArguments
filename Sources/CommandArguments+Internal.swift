@@ -177,7 +177,7 @@ extension CommandArguments {
             
             // -abc -> -a -b -c
             for character in characters {
-                try checkActiveOption() // Finish previous one
+                try checkActiveOption(with: nil) // Finish previous one
                 try activateOption(withName: String(character))
             }
         }
@@ -209,7 +209,7 @@ extension CommandArguments {
             }
             
             // options (`-x` or `--x`)
-            try checkActiveOption()
+            try checkActiveOption(with: nil)
             characters.removeFirst()
             
             // `-x`
@@ -222,7 +222,7 @@ extension CommandArguments {
             characters.removeFirst()
             try parseLongOption(characters)
         }
-        try checkActiveOption()
+        try checkActiveOption(with: nil)
         for (_, parser) in parsers {
             try parser.validate()
         }
@@ -305,7 +305,7 @@ extension CommandArguments {
             }
         }
         
-        try checkActiveOperand()
+        try checkActiveOperand(with: nil)
         for parser in parsers {
             try parser.validate()
         }
