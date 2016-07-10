@@ -1,12 +1,12 @@
 import XCTest
 import CommandArguments
 
-class MultiStringTests: XCTestCase {
+class MultiplepleTests: XCTestCase {
 
-    func testMultiArgument() {
+    func testMultipleOperand() {
         struct TestArgs: CommandArguments {
-            var a = MultiOperand(count: 2)
-            var b = MultiOperand(count: 3)
+            var a = MultipleOperand(count: 2)
+            var b = MultipleOperand(count: 3)
         }
         
         var args = TestArgs()
@@ -16,9 +16,9 @@ class MultiStringTests: XCTestCase {
         XCTAssertEqual(args.b.value, ["3", "4", "5"])
     }
     
-    func testMultiArgumentThrows() {
+    func testMultipleArgumentThrows() {
         struct TestArgs: CommandArguments {
-            var a = MultiOperand(count: 2)
+            var a = MultipleOperand(count: 2)
         }
         
         var args1 = TestArgs()
@@ -36,52 +36,52 @@ class MultiStringTests: XCTestCase {
         } catch { XCTFail() }
     }
     
-    func testMultiStringOption() {
+    func testMultipleOption() {
         struct TestArgs: CommandArguments {
-            var a = MultiStringOption(count: 2)
-            var b = MultiStringOption(count: 3)
+            var a = MultipleOption(count: 2)
+            var b = MultipleOption(count: 3)
         }
         
         var args = TestArgs()
         try! args.parse([
             "-a", "1", "2",
             "-b=3", "4", "5"
-        ])
+            ])
         
         XCTAssertEqual(args.a.value, ["1", "2"])
         XCTAssertEqual(args.b.value, ["3", "4", "5"])
     }
     
-    func testMultiStringOptionThrows() {
+    func testMultipleOptionThrows() {
         struct TestArgs: CommandArguments {
-            var a = MultiStringOption(count: 3)
-            var b = BoolOption()
+            var a = MultipleOption(count: 3)
+            var b = Option()
         }
         
         // Less than count
         [
             ["-a"],
             ["-a", "1"],
-            ["-a", "1", "2", "-b"]
+            ["-a", "1", "2", "-b", "x"]
         ].forEach {
-            var args = TestArgs()
-            do {
-                try args.parse($0)
-                XCTFail()
-            } catch ParseError.missingRequiredOption(_) {
-            } catch {
-                print(error)
-                XCTFail()
-            }
+                var args = TestArgs()
+                do {
+                    try args.parse($0)
+                    XCTFail()
+                } catch ParseError.missingRequiredOption(_) {
+                } catch {
+                    print(error)
+                    XCTFail()
+                }
         }
         
         // More than count
         var args = TestArgs()
         do {
-            try args.parse(["-a", "1", "2", "3", "4"])
+            try args.parse(["-a", "1", "2", "3", "4", "-b", "x"])
             XCTFail()
         } catch ParseError.invalidOperand(_) {
-        } catch { XCTFail() }
+        } catch { XCTFail("wrong error type \(error)") }
     }
     
 }

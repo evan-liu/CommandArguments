@@ -1,11 +1,11 @@
 import XCTest
 import CommandArguments
 
-class VariadicStringTests: XCTestCase {
-    
-    func testVariadicArgument() {
+class VariadicTests: XCTestCase {
+
+    func testVariadicOperand() {
         struct TestArgs: CommandArguments {
-            var a = RequiredOperand()
+            var a = Operand()
             var b = VariadicOperand()
         }
         
@@ -14,7 +14,7 @@ class VariadicStringTests: XCTestCase {
         XCTAssertEqual(args.b.value, ["2", "3", "4"])
     }
     
-    func testVariadicArgumentThrows() {
+    func testVariadicOperandThrows() {
         struct TestArgs: CommandArguments {
             var a = VariadicOperand(minCount: 2, maxCount: 3)
         }
@@ -34,11 +34,11 @@ class VariadicStringTests: XCTestCase {
         } catch { XCTFail() }
     }
     
-    func testVariadicStringOption() {
+    func testVariadicOption() {
         struct TestArgs: CommandArguments {
-            var a = StringOption()
-            var b = VariadicStringOption(minCount: 3)
-            var c = BoolOption()
+            var a = Option()
+            var b = VariadicOption(minCount: 3)
+            var c = OptionalOption()
         }
         
         var args = TestArgs()
@@ -46,9 +46,9 @@ class VariadicStringTests: XCTestCase {
         XCTAssertEqual(args.b.value, ["1", "2", "3"])
     }
     
-    func testVariadicStringOptionThrows() {
+    func testVariadicOptionThrows() {
         struct TestArgs: CommandArguments {
-            var a = VariadicStringOption(minCount: 3, maxCount: 4)
+            var a = VariadicOption(minCount: 3, maxCount: 4)
         }
         
         // Less than minCount

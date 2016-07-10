@@ -1,53 +1,125 @@
 import XCTest
-import CommandArguments
+@testable import CommandArguments
 
 class CommandArgumentsTests: XCTestCase {
-    struct TestArgs: CommandArguments {
-        var a = BoolOption()
-        var b = BoolOption()
+    
+    // ----------------------------------------
+    // MARK: Operand Names
+    // ----------------------------------------
+    func testOperandDefaultNames() {
+        struct TestArgs: CommandArguments {
+            var a = Operand()
+            var b = Operand()
+        }
+        
+        var args = TestArgs()
+        try! args.parse(["x", "y"])
+        
+        XCTAssertEqual(args.a.name, "a")
+        XCTAssertEqual(args.b.name, "b")
     }
     
-    func testParseArraySlice() {
-        let args = ["test", "-a", "-b"]
+    func testOperandDuplicatedNames() {
+        struct TestArgs: CommandArguments {
+            var a = Operand(name: "b")
+            var b = Operand(name: "b")
+        }
+        var args = TestArgs()
+        do {
+            try args.parse([])
+            XCTFail("should throw error")
+        } catch TypeError.duplicatedOperandName(_) {
+        } catch { XCTFail() }
+    }
+    
+    // ----------------------------------------
+    // MARK: Option Names
+    // ----------------------------------------
+    func testDefaultNames() {
+        struct TestArgs: CommandArguments {
+            var a = Option()
+            var bb = Option()
+        }
         
-        var args1 = TestArgs()
-        try! args1.parse(args.dropFirst())
-        XCTAssertTrue(args1.a.value)
-        XCTAssertTrue(args1.b.value)
+        var args = TestArgs()
+        try! args.parse("-a x --bb y")
         
-        var args2 = TestArgs()
-        try! args2.parse(args.dropFirst(2))
-        XCTAssertFalse(args2.a.value)
-        XCTAssertTrue(args2.b.value)
+        XCTAssertEqual(args.a.name.short, "a")
+        XCTAssertEqual(args.bb.name.long, "bb")
+    }
+    
+    func testDuplicatedNames() {
+        struct LongNames: CommandArguments {
+            var a = Option(longName: "xx")
+            var b = Option(longName: "xx")
+        }
+        var longArgs = LongNames()
+        do {
+            try longArgs.parse([])
+            XCTFail()
+        } catch TypeError.duplicatedOptionName(_) {
+        } catch { XCTFail() }
         
-        var args3 = TestArgs()
-        try! args3.parse(args.dropFirst(3))
-        XCTAssertFalse(args3.a.value)
-        XCTAssertFalse(args3.b.value)
+        struct ShortNames: CommandArguments {
+            var a = Option(shortName: "x")
+            var b = Option(shortName: "x")
+        }
+        var shortArgs = ShortNames()
+        do {
+            try shortArgs.parse([])
+            XCTFail()
+        } catch TypeError.duplicatedOptionName(_) {
+        } catch { XCTFail() }
+    }
+    
+    func testInvalidShortOptionName() {
+        struct Args1: CommandArguments {
+            var a = Option(shortName: "1")
+        }
+        struct Args2: CommandArguments {
+            var a = Option(shortName: "")
+        }
+        struct Args3: CommandArguments {
+            var a = Option(shortName: " ")
+        }
+        
+        var args1 = Args1()
+        do {
+            try args1.parse([])
+            XCTFail()
+        } catch TypeError.invalidShortOptionName(_) {
+        } catch { XCTFail() }
+        
+        var args2 = Args2()
+        do {
+            try args2.parse([])
+            XCTFail()
+        } catch TypeError.invalidShortOptionName(_) {
+        } catch { XCTFail() }
+        
+        var args3 = Args3()
+        do {
+            try args3.parse([])
+            XCTFail()
+        } catch TypeError.invalidShortOptionName(_) {
+        } catch { XCTFail() }
+    }
+    
+    func testNoNames() {
+        struct TestArgs: CommandArguments {
+            var a = Option(shortName: "b")
+            var b = Option()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse([])
+            XCTFail()
+        } catch TypeError.missingOptionName(_) {
+        } catch {
+            XCTFail("Wrong error type \(error)")
+        }
     }
 
-    func testParseArray() {
-        var args1 = TestArgs()
-        try! args1.parse(["test", "-a", "-b"], from: 1)
-        XCTAssertTrue(args1.a.value)
-        XCTAssertTrue(args1.b.value)
-        
-        var args2 = TestArgs()
-        try! args2.parse(["test", "-a", "-b"], from: 2)
-        XCTAssertFalse(args2.a.value)
-        XCTAssertTrue(args2.b.value)
-        
-        var args3 = TestArgs()
-        try! args3.parse(["test", "-a", "-b"], from: 3)
-        XCTAssertFalse(args3.a.value)
-        XCTAssertFalse(args3.b.value)
-    }
-    
-    func testParseString() {
-        var args1 = TestArgs()
-        try! args1.parse("test -a  -b", from: 1)
-        XCTAssertTrue(args1.a.value)
-        XCTAssertTrue(args1.b.value)
-    }
 
 }

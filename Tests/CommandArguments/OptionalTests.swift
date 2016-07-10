@@ -1,11 +1,11 @@
 import XCTest
 import CommandArguments
 
-class OptionalStringTests: XCTestCase {
+class OptionalTests: XCTestCase {
 
-    func testOptionalArgument() {
+    func testOptionalOperand() {
         struct TestArgs: CommandArguments {
-            var a = RequiredOperand()
+            var a = Operand()
             var b = OptionalOperand()
         }
         
@@ -20,8 +20,8 @@ class OptionalStringTests: XCTestCase {
     
     func testOptionalStringOption() {
         struct TestArgs: CommandArguments {
-            var a = StringOption()
-            var b = OptionalStringOption()
+            var a = Option()
+            var b = OptionalOption()
         }
         
         var args1 = TestArgs()
@@ -44,27 +44,6 @@ class OptionalStringTests: XCTestCase {
         try! args5.parse(["-a=x", "-b", "5"])
         XCTAssertEqual(args5.b.value, "5")
     }
-    
-    func testOptionalStringOptionDefaultValue() {
-        struct TestArgs: CommandArguments {
-            var a = OptionalStringOption(default: "x")
-        }
-        
-        var args1 = TestArgs()
-        try! args1.parse([])
-        XCTAssertEqual(args1.a.value, "x")
-        
-        var args2 = TestArgs()
-        try! args2.parse(["-a", "y"])
-        XCTAssertEqual(args2.a.value, "y")
-        
-        var args3 = TestArgs()
-        try! args3.parse(["-a=z"])
-        XCTAssertEqual(args3.a.value, "z")
-        
-        var args4 = TestArgs()
-        try! args4.parse(["-a="])
-        XCTAssertEqual(args4.a.value, "x")
-    }
+
 
 }

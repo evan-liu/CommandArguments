@@ -1,21 +1,50 @@
 import Foundation
 
-protocol Parsable: class {
-    var parser: Parser { get }
-    
-    var missingError: ErrorProtocol { get }
+// ----------------------------------------
+// MARK: Types
+// ----------------------------------------
+typealias OptionName = (long: String?, short: String?)
+
+protocol OptionProtocol {
+    var name: OptionName { get set }
+    var usage: String? { get }
 }
 
-extension Option {
+protocol OperandProtocol {
+    var name: String? { get set }
+    var usage: String? { get }
+}
+
+extension OptionProtocol where Self: Parsable {
     var missingError: ErrorProtocol {
-        return ParseError.missingRequiredOption(longName ?? shortName!)
+        return ParseError.missingRequiredOption(name.long ?? name.short!)
     }
 }
 
-extension Operand {
+extension OperandProtocol where Self: Parsable {
     var missingError: ErrorProtocol {
         return ParseError.missingRequiredOperand(name!)
     }
+}
+
+protocol TrailingOperand {
+    var valueCount: Int { get }
+}
+
+extension Operand: TrailingOperand {
+    var valueCount: Int { return 1 }
+}
+
+extension MultipleOperand: TrailingOperand {
+    var valueCount: Int { return count }
+}
+
+// ----------------------------------------
+// MARK: Parser
+// ----------------------------------------
+protocol Parsable: class {
+    var parser: Parser { get }
+    var missingError: ErrorProtocol { get }
 }
 
 protocol Parser {
@@ -41,7 +70,7 @@ extension Parser {
 }
 
 extension CommandArguments {
-
+    
     mutating func _parse(_ args: ArraySlice<String>) throws {
         let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         let (options, operands) = try parseFields(fields)
@@ -49,40 +78,43 @@ extension CommandArguments {
         var operandValues = [String]()
         try parseOptions(options, withArgs: args, operandValues: &operandValues)
         try parseOperands(operands, withValues: operandValues)
+
     }
     
-    /// Parse fileds and return `Parser`s
-    private func parseFields(_ fields: [Mirror.Child]) throws -> ([Option], [Operand]) {
+    // ----------------------------------------
+    // MARK: Parse fields (and check names)
+    // ----------------------------------------
+    private func parseFields(_ fields: [Mirror.Child]) throws -> ([OptionProtocol], [OperandProtocol]) {
         var knownOptionNames = Set<String>()
         var knownOperandNames = Set<String>()
         
-        var optionFields = [(String?, Option)]()
-        var operandFields = [(String?, Operand)]()
+        var optionFields = [(String?, OptionProtocol)]()
+        var operandFields = [(String?, OperandProtocol)]()
         
         // Parse options and operands
         try fields.forEach { (name, value) in
-            if value is Option {
-                let option = value as! Option
-                try checkOptionNames(long: option.longName, short: option.shortName, withKnown: &knownOptionNames)
+            if value is OptionProtocol {
+                let option = value as! OptionProtocol
+                try checkOptionName(option.name, withKnown: &knownOptionNames)
                 optionFields.append((name, option))
             } else {
-                let operand = value as! Operand
+                let operand = value as! OperandProtocol
                 try checkOperandName(operand.name, withKnown: &knownOperandNames)
                 operandFields.append((name, operand))
             }
         }
         
         // Check option default names (using filed name) and name missing error
-        try optionFields.forEach { (name, option) in
-            checkFieldName(name, ofOption: option, withKnown: &knownOptionNames)
-            if option.longName == nil && option.shortName == nil {
+        try optionFields.forEach { (name, var option) in
+            checkFieldName(name, ofOption: &option, withKnown: &knownOptionNames)
+            if option.name.long == nil && option.name.short == nil {
                 throw TypeError.missingOptionName(name)
             }
         }
         
         // Check operand default names (using filed name) and name missing error
-        try operandFields.forEach { (name, operand) in
-            checkFieldName(name, ofOperand: operand, withKnown: &knownOperandNames)
+        try operandFields.forEach { (name, var operand) in
+            checkFieldName(name, ofOperand: &operand, withKnown: &knownOperandNames)
             if operand.name == nil {
                 throw TypeError.missingOperandName(name)
             }
@@ -92,14 +124,14 @@ extension CommandArguments {
     }
     
     /// Check duplicated option names
-    private func checkOptionNames(long: String?, short: String?, withKnown names: inout Set<String>) throws {
-        if let long = long {
+    private func checkOptionName(_ name: OptionName, withKnown names: inout Set<String>) throws {
+        if let long = name.long {
             guard !names.contains(long) else {
                 throw TypeError.duplicatedOptionName(long)
             }
             names.insert(long)
         }
-        if let short = short {
+        if let short = name.short {
             guard short.characters.count == 1 else {
                 throw TypeError.invalidShortOptionName(short)
             }
@@ -123,39 +155,43 @@ extension CommandArguments {
     }
     
     /// Use filed name as default option names
-    private func checkFieldName(_ name: String?, ofOption option: Option, withKnown names: inout Set<String>) {
+    private func checkFieldName(_ name: String?, ofOption option: inout OptionProtocol, withKnown names: inout Set<String>) {
         guard let name = name where !name.isEmpty && !names.contains(name) else { return }
         if name.characters.count == 1 {
-            if option.shortName == nil {
-                option.shortName = name
+            if option.name.short == nil {
+                option.name.short = name
                 names.insert(name)
             }
         } else {
-            if option.longName == nil {
-                option.longName = name
+            if option.name.long == nil {
+                option.name.long = name
                 names.insert(name)
             }
         }
     }
     
     /// Use field name as default operand name
-    private func checkFieldName(_ name: String?, ofOperand operand: Operand, withKnown names: inout Set<String>) {
+    private func checkFieldName(_ name: String?, ofOperand operand: inout OperandProtocol, withKnown names: inout Set<String>) {
         guard let name = name where !name.isEmpty && !names.contains(name) else { return }
         guard operand.name == nil else { return }
         operand.name = name
         names.insert(name)
     }
     
+    // ----------------------------------------
+    // MARK: Parse
+    // ----------------------------------------
+    
     /// Parse options and return operand values
-    private func parseOptions(_ options: [Option], withArgs args: ArraySlice<String>, operandValues: inout [String]) throws {
+    private func parseOptions(_ options: [OptionProtocol], withArgs args: ArraySlice<String>, operandValues: inout [String]) throws {
         
         var parsers = [String: Parser]()
         options.forEach { option in
             let parser = (option as! Parsable).parser
-            if let longName = option.longName {
+            if let longName = option.name.long {
                 parsers[longName] = parser
             }
-            if let shortName = option.shortName {
+            if let shortName = option.name.short {
                 parsers[shortName] = parser
             }
         }
@@ -267,13 +303,13 @@ extension CommandArguments {
         }
     }
     
-    private func parseOperands(_ operands: [Operand], withValues values: [String]) throws {
+    private func parseOperands(_ operands: [OperandProtocol], withValues values: [String]) throws {
         if values.isEmpty && operands.isEmpty { return } // No operands
         if operands.isEmpty {
             throw ParseError.invalidOperand(values[0])
         }
         if values.isEmpty {
-            throw operands[0].missingError
+            throw (operands[0] as! Parsable).missingError
         }
         
         let parsers = operands.map { ($0 as! Parsable).parser }
@@ -316,12 +352,13 @@ extension CommandArguments {
         
         var valueEndIndex = values.endIndex
         func checkTrainingOperand() throws {
+            // TODO TrainingOperand
             guard operands.count > 1 else { return }
             guard let operand = operands.last! as? TrailingOperand else { return }
             
             let count = operand.valueCount
             guard values.count >= count else {
-                throw operands.last!.missingError
+                throw (operands.last as! Parsable).missingError
             }
             
             let parser = parsers.last!
@@ -349,5 +386,5 @@ extension CommandArguments {
             try $0.validate()
         }
     }
+    
 }
-
