@@ -26,6 +26,19 @@ class TrailingOperandTests: XCTestCase {
         XCTAssertEqual(args.a.value, ["1", "2"])
         XCTAssertEqual(args.b.value, ["3", "4"])
     }
-
+    
+    func testTrailingOperandThrows() {
+        struct TestArgs: CommandArguments {
+            var a = VariadicOperand()
+            var b = Operand()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse([])
+            XCTFail()
+        } catch ParseError.missingRequiredOperand(_) {
+        } catch { XCTFail() }
+    }
 
 }

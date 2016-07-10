@@ -55,7 +55,7 @@ class RequiredArgumentParser<Target: RequiredArgumentProtocol>: Parser {
         canTakeValue = false
     }
     func validate() throws {
-        if canTakeValue { throw target.missingError }
+        if target.value == nil { throw target.missingError }
     }
 }
 

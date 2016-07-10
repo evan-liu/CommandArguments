@@ -1,5 +1,5 @@
 import XCTest
-@testable import CommandArguments
+import CommandArguments
 
 class CommandArgumentsTests: XCTestCase {
     
@@ -15,8 +15,8 @@ class CommandArgumentsTests: XCTestCase {
         var args = TestArgs()
         try! args.parse(["x", "y"])
         
-        XCTAssertEqual(args.a.name, "a")
-        XCTAssertEqual(args.b.name, "b")
+        XCTAssertEqual(args.a.value, "x")
+        XCTAssertEqual(args.b.value, "y")
     }
     
     func testOperandDuplicatedNames() {
@@ -32,10 +32,26 @@ class CommandArgumentsTests: XCTestCase {
         } catch { XCTFail() }
     }
     
+    func testOperandNoNames() {
+        struct TestArgs: CommandArguments {
+            var a = Operand(name: "b")
+            var b = Operand()
+        }
+        
+        var args = TestArgs()
+        do {
+            try args.parse([])
+            XCTFail()
+        } catch TypeError.missingOperandName(_) {
+        } catch {
+            XCTFail("Wrong error type \(error)")
+        }
+    }
+    
     // ----------------------------------------
     // MARK: Option Names
     // ----------------------------------------
-    func testDefaultNames() {
+    func testOptionDefaultNames() {
         struct TestArgs: CommandArguments {
             var a = Option()
             var bb = Option()
@@ -44,11 +60,11 @@ class CommandArgumentsTests: XCTestCase {
         var args = TestArgs()
         try! args.parse("-a x --bb y")
         
-        XCTAssertEqual(args.a.name.short, "a")
-        XCTAssertEqual(args.bb.name.long, "bb")
+        XCTAssertEqual(args.a.value, "x")
+        XCTAssertEqual(args.bb.value, "y")
     }
     
-    func testDuplicatedNames() {
+    func testOptionDuplicatedNames() {
         struct LongNames: CommandArguments {
             var a = Option(longName: "xx")
             var b = Option(longName: "xx")
@@ -105,7 +121,7 @@ class CommandArgumentsTests: XCTestCase {
         } catch { XCTFail() }
     }
     
-    func testNoNames() {
+    func testOptionNoNames() {
         struct TestArgs: CommandArguments {
             var a = Option(shortName: "b")
             var b = Option()
@@ -120,6 +136,5 @@ class CommandArgumentsTests: XCTestCase {
             XCTFail("Wrong error type \(error)")
         }
     }
-
 
 }

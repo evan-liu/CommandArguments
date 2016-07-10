@@ -352,7 +352,6 @@ extension CommandArguments {
         
         var valueEndIndex = values.endIndex
         func checkTrainingOperand() throws {
-            // TODO TrainingOperand
             guard operands.count > 1 else { return }
             guard let operand = operands.last! as? TrailingOperand else { return }
             
