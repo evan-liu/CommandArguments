@@ -51,7 +51,7 @@ class OptionalArgumentParser<Target: OptionalArgumentProtocol>: Parser {
     
     var canTakeValue = true
     func parseValue(_ value: String) {
-        target.value = Target.Value.parseArgument(value)
+        target.value = Target.Value(rawValue: value)
         canTakeValue = false
     }
 }

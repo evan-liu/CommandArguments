@@ -40,17 +40,12 @@ extension CommandArguments {
 
 /// A type that can be initialized with an argument value.
 public protocol ArgumentConvertible {
-    static func parseArgument(_ value: String) -> Self?
-}
-
-extension RawRepresentable where RawValue == String {
-    public static func parseArgument(_ value: String) -> Self? {
-        return Self.init(rawValue: value)
-    }
+    init?(rawValue: String)
 }
 
 extension String: ArgumentConvertible {
-    public static func parseArgument(_ value: String) -> String? {
-        return value.isEmpty ? nil : value
+    public init?(rawValue: String) {
+        guard !rawValue.isEmpty else { return nil }
+        self = rawValue
     }
 }

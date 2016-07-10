@@ -71,7 +71,7 @@ class VariadicArgumentParser<Target: VariadicArgumentProtocol>: Parser {
         }
     }
     func parseValue(_ value: String) {
-        if let value = Target.Value.parseArgument(value) {
+        if let value = Target.Value(rawValue: value) {
             target.value.append(value)
         }
         parseCount += 1

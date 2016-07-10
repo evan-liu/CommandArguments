@@ -53,7 +53,7 @@ class DefaultedArgumentParser<Target: DefaultedArgumentProtocol>: Parser {
     
     var canTakeValue = true
     func parseValue(_ value: String) {
-        if let value = Target.Value.parseArgument(value) {
+        if let value = Target.Value(rawValue: value) {
             target.value = value
         }
         canTakeValue = false

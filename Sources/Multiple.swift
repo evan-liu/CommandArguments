@@ -61,7 +61,7 @@ class MultipleArgumentParser<Target: MultipleArgumentProtocol>: Parser {
         return parseCount < target.count
     }
     func parseValue(_ value: String) {
-        if let value = Target.Value.parseArgument(value) {
+        if let value = Target.Value(rawValue: value) {
             target.value.append(value)
         }
         parseCount += 1
