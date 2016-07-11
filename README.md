@@ -3,7 +3,7 @@
 Strong typed arguments parsing library based on Swift reflection (`Mirror`) API. 
 
 [![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
-swift 3 version: DEVELOPMENT-SNAPSHOT-2016-06-20-a
+Swift 3 Preview 2 (DEVELOPMENT-SNAPSHOT-2016-06-20-a)
 
 ## Example 1
 

@@ -122,16 +122,18 @@ extension CommandArguments {
         }
         var activeOptionParser: Parser?
         
-        func checkActiveOption(with value: String? = nil) throws {
+        func checkActiveOption(with value: String) throws {
             guard let parser = activeOptionParser else { return }
             
-            if let value = value {
-                try parser.parseValue(value)
-                if !parser.canTakeValue {
-                    try parser.finishParsing()
-                    activeOptionParser = nil
-                }
-            } else {
+            try parser.parseValue(value)
+            if !parser.canTakeValue {
+                try parser.finishParsing()
+                activeOptionParser = nil
+            }
+        }
+        
+        func finishActiveOption() throws {
+            if let parser = activeOptionParser {
                 try parser.finishParsing()
                 activeOptionParser = nil
             }
@@ -177,7 +179,7 @@ extension CommandArguments {
             
             // -abc -> -a -b -c
             for character in characters {
-                try checkActiveOption(with: nil) // Finish previous one
+                try finishActiveOption()
                 try activateOption(withName: String(character))
             }
         }
@@ -209,7 +211,7 @@ extension CommandArguments {
             }
             
             // options (`-x` or `--x`)
-            try checkActiveOption(with: nil)
+            try finishActiveOption()
             characters.removeFirst()
             
             // `-x`
@@ -222,7 +224,7 @@ extension CommandArguments {
             characters.removeFirst()
             try parseLongOption(characters)
         }
-        try checkActiveOption(with: nil)
+        try finishActiveOption()
         for (_, parser) in parsers {
             try parser.validate()
         }
@@ -243,18 +245,18 @@ extension CommandArguments {
         var lastOperandIndex = operands.endIndex - 1
         var activeOperandIndex: Int?
         
-        func checkActiveOperand(with value: String? = nil) throws {
-            guard let index = activeOperandIndex else { return }
+        func checkActiveOperand(index: Int, value: String) throws {
             let parser = parsers[index]
-            
-            if let value = value {
-                try parser.parseValue(value)
-                if !parser.canTakeValue {
-                    try parser.finishParsing()
-                    activeOperandIndex = nil
-                }
-            } else {
+            try parser.parseValue(value)
+            if !parser.canTakeValue {
                 try parser.finishParsing()
+                activeOperandIndex = nil
+            }
+        }
+        
+        func finishActiveOperand() throws {
+            if let index = activeOperandIndex {
+                try parsers[index].finishParsing()
                 activeOperandIndex = nil
             }
         }
@@ -298,14 +300,14 @@ extension CommandArguments {
         
         for i in 0 ..< valueEndIndex {
             let value = values[i]
-            if activeOperandIndex != nil {
-                try checkActiveOperand(with: value)
+            if let index = activeOperandIndex {
+                try checkActiveOperand(index: index, value: value)
             } else {
                 try parseOperand(value)
             }
         }
         
-        try checkActiveOperand(with: nil)
+        try finishActiveOperand()
         for parser in parsers {
             try parser.validate()
         }
