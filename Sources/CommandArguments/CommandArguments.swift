@@ -33,7 +33,12 @@ extension CommandArguments {
      `try args.parse(Process.arguments.dropFirst())`
      */
     public mutating func parse(_ args: ArraySlice<String>) throws {
-        try _parse(args)
+        let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
+        let (options, operands) = try parseFields(fields)
+        
+        var operandValues = [String]()
+        try parseOptions(options, withArgs: args, operandValues: &operandValues)
+        try parseOperands(operands, withValues: operandValues)
     }
     
 }
