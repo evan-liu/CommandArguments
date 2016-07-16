@@ -2,7 +2,6 @@ import Foundation
 
 protocol Parsable: class {
     var parser: Parser { get }
-    var missingError: ErrorProtocol { get }
 }
 
 protocol Parser {

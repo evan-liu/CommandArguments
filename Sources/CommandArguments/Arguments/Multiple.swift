@@ -44,10 +44,14 @@ public final class MultipleOperand: MultipleOperandT<String> {
 // ----------------------------------------
 // MARK: Internal
 // ----------------------------------------
-protocol MultipleArgumentProtocol: Parsable {
+protocol MultipleArgumentProtocol: Parsable, Missable {
     associatedtype Value: ArgumentConvertible
     var value: [Value] { get set }
     var count: Int { get }
+}
+
+extension MultipleArgumentProtocol {
+    var isMissing: Bool { return value.count < count }
 }
 
 class MultipleArgumentParser<Target: MultipleArgumentProtocol>: Parser {
@@ -67,9 +71,7 @@ class MultipleArgumentParser<Target: MultipleArgumentProtocol>: Parser {
         parseCount += 1
     }
     func validate() throws {
-        if target.value.count < target.count {
-            throw target.missingError
-        }
+        if target.isMissing { throw target.missingError }
     }
 
 }
@@ -80,5 +82,18 @@ extension MultipleArgumentProtocol {
     }
 }
 
-extension MultipleOptionT: OptionProtocol, MultipleArgumentProtocol { }
-extension MultipleOperandT: OperandProtocol, MultipleArgumentProtocol { }
+extension MultipleOptionT: OptionProtocol, MultipleArgumentProtocol {
+    var missingError: ErrorProtocol {
+        return ParseError.missing("Missing or invalid values (need \(count)) for option \(missingName)")
+    }
+}
+
+extension MultipleOperandT: OperandProtocol, MultipleArgumentProtocol {
+    var missingError: ErrorProtocol {
+        return ParseError.missing("Missing or invalid values (need \(count)) for operand \(missingName)")
+    }
+}
+
+extension MultipleOperandT: TrailingOperand {
+    var valueCount: Int { return count }
+}

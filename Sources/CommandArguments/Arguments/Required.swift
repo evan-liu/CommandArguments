@@ -38,9 +38,13 @@ public final class Operand: OperandT<String> {
 // ----------------------------------------
 // MARK: Internal
 // ----------------------------------------
-protocol RequiredArgumentProtocol: Parsable {
+protocol RequiredArgumentProtocol: Parsable, Missable {
     associatedtype Value: ArgumentConvertible
     var value: Value! { get set }
+}
+
+extension RequiredArgumentProtocol {
+    var isMissing: Bool { return value == nil }
 }
 
 class RequiredArgumentParser<Target: RequiredArgumentProtocol>: Parser {
@@ -55,7 +59,7 @@ class RequiredArgumentParser<Target: RequiredArgumentProtocol>: Parser {
         canTakeValue = false
     }
     func validate() throws {
-        if target.value == nil { throw target.missingError }
+        if target.isMissing { throw target.missingError }
     }
 }
 
@@ -65,5 +69,18 @@ extension RequiredArgumentProtocol {
     }
 }
 
-extension OptionT: OptionProtocol, RequiredArgumentProtocol { }
-extension OperandT: OperandProtocol, RequiredArgumentProtocol { }
+extension OptionT: OptionProtocol, RequiredArgumentProtocol {
+    var missingError: ErrorProtocol {
+        return ParseError.missing("Missing or invalid value for option \(missingName)")
+    }
+}
+
+extension OperandT: OperandProtocol, RequiredArgumentProtocol {
+    var missingError: ErrorProtocol {
+        return ParseError.missing("Missing or invalid value for operand \(missingName)")
+    }
+}
+
+extension OperandT: TrailingOperand {
+    var valueCount: Int { return 1 }
+}

@@ -49,11 +49,20 @@ public final class VariadicOperand: VariadicOperandT<String> {
 // ----------------------------------------
 // MARK: Internal
 // ----------------------------------------
-protocol VariadicArgumentProtocol: Parsable {
+protocol VariadicArgumentProtocol: Parsable, Missable {
     associatedtype Value: ArgumentConvertible
     var value: [Value] { get set }
     var minCount: Int? { get }
     var maxCount: Int? { get }
+}
+
+extension VariadicArgumentProtocol {
+    var isMissing: Bool {
+        if let minCount = minCount where minCount > value.count {
+            return true
+        }
+        return false
+    }
 }
 
 class VariadicArgumentParser<Target: VariadicArgumentProtocol>: Parser {
@@ -77,9 +86,7 @@ class VariadicArgumentParser<Target: VariadicArgumentProtocol>: Parser {
         parseCount += 1
     }
     func validate() throws {
-        if let minCount = target.minCount where minCount > target.value.count {
-            throw target.missingError
-        }
+        if target.isMissing { throw target.missingError }
     }
     
 }
@@ -90,5 +97,14 @@ extension VariadicArgumentProtocol {
     }
 }
 
-extension VariadicOptionT: OptionProtocol, VariadicArgumentProtocol { }
-extension VariadicOperandT: OperandProtocol, VariadicArgumentProtocol { }
+extension VariadicOptionT: OptionProtocol, VariadicArgumentProtocol {
+    var missingError: ErrorProtocol {
+        return ParseError.missing("Missing or invalid values (at least \(minCount)) for option \(missingName)")
+    }
+}
+
+extension VariadicOperandT: OperandProtocol, VariadicArgumentProtocol {
+    var missingError: ErrorProtocol {
+        return ParseError.missing("Missing or invalid values (at least \(minCount)) for operand \(missingName)")
+    }
+}

@@ -12,26 +12,43 @@ protocol OperandProtocol {
     var usage: String? { get }
 }
 
-extension OptionProtocol where Self: Parsable {
-    var missingError: ErrorProtocol {
-        return ParseError.missingRequiredOption(name.long ?? name.short!)
-    }
+/// Argument type that may throw `missingError`.
+protocol Missable {
+    
+    var isMissing: Bool { get }
+    var missingError: ErrorProtocol { get }
+    
 }
 
-extension OperandProtocol where Self: Parsable {
-    var missingError: ErrorProtocol {
-        return ParseError.missingRequiredOperand(name!)
-    }
-}
-
-protocol TrailingOperand {
+/**
+ A `TrailingOperand` will be parsed before `OptionalOption` and `VariadicOption`.
+ 
+ Example:
+ 
+ ````
+ /// Join 2 or more `src` into `dest`
+ struct JoinArgs: CommandArguments {
+ var src = VariadicOperand(minCount: 2)
+ var dest = Operand()
+ }
+ ````
+ 
+ */
+protocol TrailingOperand: Missable {
+    /// Count of trailing values to be parsed first.
     var valueCount: Int { get }
 }
 
-extension Operand: TrailingOperand {
-    var valueCount: Int { return 1 }
+// ----------------------------------------
+// MARK: Helper extensions
+// ----------------------------------------
+extension OptionProtocol where Self: Missable {
+    var missingName: String {
+        return name.long ?? name.short!
+    }
 }
-
-extension MultipleOperand: TrailingOperand {
-    var valueCount: Int { return count }
+extension OperandProtocol where Self: Missable {
+    var missingName: String {
+        return name!
+    }
 }

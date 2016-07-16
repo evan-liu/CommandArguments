@@ -7,8 +7,6 @@ Swift 3.0-PREVIEW-2 (Xcode 8.0 Beta 2)
 
 ## Example 1
 
-`$ build ios --version=1.0 --clean`
-
 ```swift
 struct BuildArguments: CommandArguments {
     var platform = Operand()
@@ -18,19 +16,18 @@ struct BuildArguments: CommandArguments {
 
 var buildArgs = BuildArguments()
 do {
-    try buildArgs.parse(Process.arguments, from: 1)
+    try buildArgs.parse(Process.arguments.dropFirst())
 } catch {
     print(error)
 }
 
+// $ build ios --version=1.0 --clean
 buildArgs.platform.value    // "ios"
 buildArgs.version.value     // "1.0"
 buildArgs.clean.value       // true
 ```
 
 ## Example 2
-
-`$ deploy -cs prod watchOS`
 
 ```swift
 struct DeployArguments: CommandArguments {
@@ -48,11 +45,12 @@ struct DeployArguments: CommandArguments {
 
 var deployArgs = DeployArguments()
 do {
-    try deployArgs.parse(Process.arguments.dropFirst())
+    try deployArgs.parse(Process.arguments, from: 1)
 } catch {
     print(error)
 }
 
+// $ deploy -cs prod watchOS
 deployArgs.platform.value   // .watchOS
 deployArgs.server.value     // .prod
 deployArgs.clean.value      // true

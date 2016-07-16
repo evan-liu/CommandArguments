@@ -27,7 +27,7 @@ class EnumTests: XCTestCase {
         do {
             try args1.parse(["--server=dev"])
             XCTFail("no error throws")
-        } catch ParseError.missingRequiredOperand(_) {
+        } catch ParseError.missing(_) {
         } catch {
             XCTFail("wrong error type \(error)")
         }
@@ -36,7 +36,7 @@ class EnumTests: XCTestCase {
         do {
             try args2.parse(["watchOS"])
             XCTFail("no error throws")
-        } catch ParseError.missingRequiredOption(_) {
+        } catch ParseError.missing(_) {
         } catch {
             XCTFail("wrong error type \(error)")
         }
@@ -45,7 +45,7 @@ class EnumTests: XCTestCase {
         do {
             try args3.parse(["watchOS", "--server=abc"])
             XCTFail("no error throws")
-        } catch ParseError.missingRequiredOption(_) {
+        } catch ParseError.missing(_) {
         } catch {
             XCTFail("wrong error type \(error)")
         }

@@ -28,11 +28,8 @@ public enum ParseError: ErrorProtocol {
     /// Throws when parsing an unknown operand
     case invalidOperand(String)
     
-    /// Throws when required option is missing
-    case missingRequiredOption(String)
-    
-    /// Throws when required operand is missing
-    case missingRequiredOperand(String)
+    /// Throws when missing some option or operand
+    case missing(String)
 }
 
 extension TypeError: CustomStringConvertible {
@@ -59,10 +56,8 @@ extension ParseError: CustomStringConvertible {
             return "Invalid option \(name)"
         case .invalidOperand(let value):
             return "Invalid operand value \(value)"
-        case .missingRequiredOption(let name):
-            return "Missing required option \(name)"
-        case .missingRequiredOperand(let name):
-            return "Missing required operand \(name)"
+        case .missing(let desc):
+            return desc
         }
     }
 }

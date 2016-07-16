@@ -1,6 +1,38 @@
 import Foundation
 
-/// `Arguments` type with `Argument` and/or `Option` fields
+/**
+ `Arguments` type with `Flag`, `Option` or `Operand` fields.
+ 
+ Usage:
+ 
+ - Make a struct or class confirm to `CommandArguments` protocol
+ - Add instance variables of `Flag`, `Option` or `Operand`
+ - Create an instance `yourArgs`
+ - `try yourArgs.parse()`
+ 
+ Example: 
+ 
+ ````
+ struct BuildArguments: CommandArguments {
+     var platform = Operand()
+     var version = Option()
+     var clean = Flag()
+ }
+ 
+ var buildArgs = BuildArguments()
+ do {
+     try buildArgs.parse(Process.arguments.dropFirst())
+ } catch {
+     print(error)
+ }
+ 
+ // $ build ios --version=1.0 --clean
+ buildArgs.platform.value    // "ios"
+ buildArgs.version.value     // "1.0"
+ buildArgs.clean.value       // true
+ ````
+ 
+ */
 public protocol CommandArguments {
     
     /// `Mirror` API requires `init()`
@@ -43,14 +75,3 @@ extension CommandArguments {
     
 }
 
-/// A type that can be initialized with an argument value.
-public protocol ArgumentConvertible {
-    init?(rawValue: String)
-}
-
-extension String: ArgumentConvertible {
-    public init?(rawValue: String) {
-        guard !rawValue.isEmpty else { return nil }
-        self = rawValue
-    }
-}

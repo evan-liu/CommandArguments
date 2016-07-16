@@ -37,7 +37,7 @@ class TrailingOperandTests: XCTestCase {
         do {
             try args.parse([])
             XCTFail()
-        } catch ParseError.missingRequiredOperand(_) {
+        } catch ParseError.missing(_) {
         } catch { XCTFail() }
     }
 

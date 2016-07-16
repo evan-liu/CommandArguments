@@ -16,7 +16,7 @@ class RequiredTests: XCTestCase {
         try! args.parse([
             "--aa", "xx", "--bb=yy",
             "-c", "x", "-d=y"
-            ])
+        ])
         
         XCTAssertEqual(args.a.value, "xx")
         XCTAssertEqual(args.b.value, "yy")
@@ -34,13 +34,13 @@ class RequiredTests: XCTestCase {
         do {
             try args.parse([])
             XCTFail("no error throws")
-        } catch ParseError.missingRequiredOption(_) {
+        } catch ParseError.missing(_) {
         } catch {
             XCTFail("wrong error type \(error)")
         }
     }
 
-    func testRequiredOperand() {
+    func testOperand() {
         struct TestArgs: CommandArguments {
             var a = Operand()
             var b = Operand()
@@ -53,17 +53,32 @@ class RequiredTests: XCTestCase {
         XCTAssertEqual(args.b.value, "y")
     }
     
-    func testRequiredOperandThrows() {
+    func testOperandThrows() {
         struct TestArgs: CommandArguments {
             var a = Operand()
+            var b = Operand()
         }
         
-        var args = TestArgs()
+        var args1 = TestArgs()
         do {
-            try args.parse([])
-            XCTFail()
-        } catch ParseError.missingRequiredOperand(_) {
-        } catch { XCTFail() }
+            try args1.parse([])
+            XCTFail("no error throws")
+        } catch ParseError.missing(_) {
+        } catch {
+            XCTFail("wrong error type \(error)")
+        }
+        
+        var args2 = TestArgs()
+        do {
+            try args2.parse(["x"])
+            XCTFail("no error throws")
+        } catch ParseError.missing(_) {
+        } catch {
+            XCTFail("wrong error type \(error)")
+        }
+        
+        var args3 = TestArgs()
+        try! args3.parse(["x", "y"])
     }
     
 }

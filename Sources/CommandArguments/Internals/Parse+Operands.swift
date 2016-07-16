@@ -8,11 +8,14 @@ extension CommandArguments {
         if operands.isEmpty {
             throw ParseError.invalidOperand(values[0])
         }
-        if values.isEmpty {
-            throw (operands[0] as! Parsable).missingError
-        }
         
         let parsers = operands.map { ($0 as! Parsable).parser }
+        if values.isEmpty {
+            for parser in parsers {
+                try parser.validate()
+            }
+            return
+        }
         
         var nextOperandIndex = 0
         var lastOperandIndex = operands.endIndex - 1
@@ -57,7 +60,7 @@ extension CommandArguments {
             
             let count = operand.valueCount
             guard values.count >= count else {
-                throw (operands.last as! Parsable).missingError
+                throw operand.missingError
             }
             
             let parser = parsers.last!

@@ -22,16 +22,20 @@ class VariadicTests: XCTestCase {
         var args1 = TestArgs()
         do {
             try args1.parse(["1"])
-            XCTFail()
-        } catch ParseError.missingRequiredOperand(_) {
-        } catch { XCTFail() }
+            XCTFail("no error throws")
+        } catch ParseError.missing(_) {
+        } catch {
+            XCTFail("wrong error type \(error)")
+        }
         
         var args2 = TestArgs()
         do {
             try args2.parse(["1", "2", "3", "4"])
-            XCTFail()
+            XCTFail("no error throws")
         } catch ParseError.invalidOperand(_) {
-        } catch { XCTFail() }
+        } catch {
+            XCTFail("wrong error type \(error)")
+        }
     }
     
     func testVariadicOption() {
@@ -60,19 +64,21 @@ class VariadicTests: XCTestCase {
             var args = TestArgs()
             do {
                 try args.parse($0)
-                XCTFail()
-            } catch ParseError.missingRequiredOption(_) {
-            } catch { XCTFail() }
+                XCTFail("no error throws")
+            } catch ParseError.missing(_) {
+            } catch {
+                XCTFail("wrong error type \(error)")
+            }
         }
         
         // More than maxCount
         var args = TestArgs()
         do {
             try args.parse(["-a", "1", "2", "3", "4", "5"])
-            XCTFail()
+            XCTFail("no error throws")
         } catch ParseError.invalidOperand(_) {
         } catch {
-            XCTFail()
+            XCTFail("wrong error type \(error)")
         }
     }
 
