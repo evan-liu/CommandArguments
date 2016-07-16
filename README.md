@@ -55,3 +55,29 @@ deployArgs.platform.value   // .watchOS
 deployArgs.server.value     // .prod
 deployArgs.clean.value      // true
 ```
+
+## Example 3
+
+```swift
+struct ReportArguments: CommandArguments {
+    var format = DefaultedOption("html", shortName: "f", usage: "Report format (html by default)")
+    var coverage = Flag(shortName: "c", usage: "If include test coverage in the report")
+
+    var project = Operand(usage: "Project name for the report")
+    var email = VariadicOperand(minCount: 1, usage: "Email address to receive the report (at least 1)")
+}
+
+print(ReportArguments().usage(commandName: "report"))
+```
+
+```
+Usage: report [options] project email ...
+
+Operands:
+  project  Project name for the report
+  email    Email address to receive the report (at least 1)
+
+Options:
+  -f, --format    Report format (html by default)
+  -c, --coverage  If include test coverage in the report
+```
