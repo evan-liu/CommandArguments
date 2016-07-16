@@ -38,6 +38,10 @@ public class VariadicOperandT<T: ArgumentConvertible> {
         self.name = name
         self.usage = usage
     }
+    
+    var synopsis: String {
+        return "\(name!) ..."
+    }
 }
 
 public final class VariadicOperand: VariadicOperandT<String> {

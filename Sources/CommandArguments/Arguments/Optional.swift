@@ -27,6 +27,9 @@ public class OptionalOperandT<T: ArgumentConvertible> {
         self.usage = usage
     }
     
+    var synopsis: String {
+        return "<\(name!)>"
+    }
 }
 
 public final class OptionalOperand: OptionalOperandT<String> {

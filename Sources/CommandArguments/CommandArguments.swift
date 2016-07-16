@@ -65,13 +65,35 @@ extension CommandArguments {
      `try args.parse(Process.arguments.dropFirst())`
      */
     public mutating func parse(_ args: ArraySlice<String>) throws {
-        let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
-        let (options, operands) = try parseFields(fields)
+        let (options, operands) = try parseFields()
         
         var operandValues = [String]()
         try parseOptions(options, withArgs: args, operandValues: &operandValues)
         try parseOperands(operands, withValues: operandValues)
     }
     
+    /**
+     Parse usage string as: 
+     ````
+     Usage: command [options] operands
+     
+     Operands:
+     operand  Operand usage
+     ...
+     
+     Options:
+       -f, --flag  Option usage
+       ...
+     
+     ````
+     */
+    public func usage(commandName: String = "command") -> String {
+        do {
+            let (options, operands) = try parseFields()
+            return parseUsage(commandName: commandName, options: options, operands: operands)
+        } catch {
+            return "Error: \(error)"
+        }
+    }
+    
 }
-

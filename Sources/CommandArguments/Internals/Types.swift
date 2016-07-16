@@ -8,8 +8,21 @@ protocol OptionProtocol {
 }
 
 protocol OperandProtocol {
+    
+    /// Name in usage description secion
     var name: String? { get set }
+    
+    /// Detail message in usage description secion
     var usage: String? { get }
+    
+    /// Title in usage synopsis secion
+    var synopsis: String { get }
+}
+
+extension OperandProtocol {
+    var synopsis: String {
+        return name!
+    }
 }
 
 /// Argument type that may throw `missingError`.

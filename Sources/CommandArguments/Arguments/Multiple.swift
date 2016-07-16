@@ -33,6 +33,10 @@ public class MultipleOperandT<T: ArgumentConvertible> {
         self.name = name
         self.usage = usage
     }
+    
+    var synopsis: String {
+        return "\(name!) ..."
+    }
 }
 
 public final class MultipleOperand: MultipleOperandT<String> {

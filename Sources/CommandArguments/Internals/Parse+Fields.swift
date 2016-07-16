@@ -3,7 +3,7 @@ import Foundation
 extension CommandArguments {
     
     /// Parse fields. Validate names and throw `TypeError`.
-    func parseFields(_ fields: [Mirror.Child]) throws -> ([OptionProtocol], [OperandProtocol]) {
+    func parseFields() throws -> ([OptionProtocol], [OperandProtocol]) {
         var knownOptionNames = Set<String>()
         var knownOperandNames = Set<String>()
         
@@ -66,6 +66,7 @@ extension CommandArguments {
         }
         
         // Parse options and operands
+        let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
         for (name, value) in fields {
             if value is OptionProtocol {
                 let option = value as! OptionProtocol
