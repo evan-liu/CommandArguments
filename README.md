@@ -139,7 +139,7 @@ All arguments after `--` will be parsed as `Operand`s
 
 - Operand: Ordinary argument values. Like src and dest in `cp src dest`
 - Option: -x (short name) or --xyz (long name) format option with values
-- Flag: A `Bool` type `Option`. Be `true` with: -x, --xyz, -x true, --xyz true, -x=true, --xyz=true
+- Flag: A `Bool` type `Option`. Be `true` with: `-x, --xyz, -x true, --xyz true, -x=true, --xyz=true`
 
 ### Requirements
 
@@ -147,7 +147,7 @@ All arguments after `--` will be parsed as `Operand`s
 - `MultipleOption` & `MultipleOperand`: Require `count` times. Value type: `[String]`
 - `OptionalOption` & `OptionalOperand`: Not required. Value type: `String?`
 - `DefaultedOption` & `DefaultedOperand`: Not required. Value type: `String`
-- `VariadicOption` & `VariadicOperand`: Required if `minCount` > 0. Value type: `[String]`
+- `VariadicOption` & `VariadicOperand`: Required if `minCount > 0`. Value type: `[String]`
 
 `ParseError.missing` will be threw if requirements not match. 
 
@@ -156,7 +156,7 @@ All arguments after `--` will be parsed as `Operand`s
 Any type confirm to `ArgumentConvertible` protocol (see Enum example above) can be used in `Generic T` versions. Value types: 
 
 - `OptionT` & `OperandT`: `T!`
-- `MultipleOptionT` & `MultipleOperandT`: [T]`
+- `MultipleOptionT` & `MultipleOperandT`: `[T]`
 - `OptionalOptionT` & `OptionalOperandT`: `T?`
 - `DefaultedOptionT` & `DefaultedOperandT`: `T`
 - `VariadicOptionT` & `VariadicOperandT`: `[T]`
