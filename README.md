@@ -5,7 +5,9 @@ Strong typed arguments parsing library based on Swift reflection (`Mirror`) API.
 [![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
 Swift 3.0-PREVIEW-2 (Xcode 8.0 Beta 2)
 
-## Example 1
+## Features
+
+### Strong typed arguments 
 
 ```swift
 struct BuildArguments: CommandArguments {
@@ -27,7 +29,7 @@ buildArgs.version.value     // "1.0"
 buildArgs.clean.value       // true
 ```
 
-## Example 2
+### Enum (and other custom type) arguments
 
 ```swift
 struct DeployArguments: CommandArguments {
@@ -56,10 +58,12 @@ deployArgs.server.value     // .prod
 deployArgs.clean.value      // true
 ```
 
-## Example 3
+### Usage message
 
 ```swift
 struct ReportArguments: CommandArguments {
+    let commandName = "report"
+
     var format = DefaultedOption("html", shortName: "f", usage: "Report format (html by default)")
     var coverage = Flag(shortName: "c", usage: "If include test coverage in the report")
 
@@ -67,7 +71,7 @@ struct ReportArguments: CommandArguments {
     var email = VariadicOperand(minCount: 1, usage: "Email address to receive the report (at least 1)")
 }
 
-print(ReportArguments().usage(commandName: "report"))
+print(ReportArguments().usage())
 ```
 
 ```
@@ -80,4 +84,43 @@ Operands:
 Options:
   -f, --format    Report format (html by default)
   -c, --coverage  If include test coverage in the report
+```
+ 
+### Class inheritance
+
+```swift
+enum Platform: String, ArgumentConvertible {
+    case iOS, watchOS, macOS
+}
+class AppleArgs {
+    var platform = OptionT<Platform>()
+}
+final class BuildArgs: AppleArgs, CommandArguments {
+    let commandName = "build"
+    var clear = Flag()
+}
+final class DeployArgs: AppleArgs, CommandArguments {
+    let commandName = "deploy"
+    var report = Flag()
+}
+```
+
+`print(BuildArgs().usage())`
+
+```
+Usage: build [options]
+
+Options:
+  --platform
+  --clear
+```
+
+`print(DeployArgs().usage())`
+
+```
+Usage: deploy [options]
+
+Options:
+  --platform
+  --report
 ```
