@@ -7,7 +7,7 @@ enum Platform: String, ArgumentConvertible {
     case iOS, watchOS, macOS
 }
 class AppleArgs {
-    var platform = OptionT<Platform>()
+    var platform = OptionT<Platform>(usage: "Apple platform (iOS|watchOS|macOS)")
 }
 final class BuildArgs: AppleArgs, CommandArguments {
     let commandName = "build"

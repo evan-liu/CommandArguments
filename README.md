@@ -29,7 +29,7 @@ buildArgs.version.value     // "1.0"
 buildArgs.clean.value       // true
 ```
 
-### Enum (and other custom type) arguments
+### Enum arguments
 
 ```swift
 struct DeployArguments: CommandArguments {
@@ -93,7 +93,7 @@ enum Platform: String, ArgumentConvertible {
     case iOS, watchOS, macOS
 }
 class AppleArgs {
-    var platform = OptionT<Platform>()
+    var platform = OptionT<Platform>(usage: "Apple platform (iOS|watchOS|macOS)")
 }
 final class BuildArgs: AppleArgs, CommandArguments {
     let commandName = "build"
@@ -111,7 +111,7 @@ final class DeployArgs: AppleArgs, CommandArguments {
 Usage: build [options]
 
 Options:
-  --platform
+  --platform  Apple platform (iOS|watchOS|macOS)
   --clear
 ```
 
@@ -121,6 +121,50 @@ Options:
 Usage: deploy [options]
 
 Options:
-  --platform
+  --platform  Apple platform (iOS|watchOS|macOS)
   --report
 ```
+
+### Combined short named options
+
+`-abc xyz` is equal to `-a -b -c xyz`
+
+### Option stopper `--`
+
+All arguments after `--` will be parsed as `Operand`s
+
+## API
+
+### Argument categories
+
+- Operand: Ordinary argument values. Like src and dest in `cp src dest`
+- Option: -x (short name) or --xyz (long name) format option with values
+- Flag: A `Bool` type `Option`. Be `true` with: -x, --xyz, -x true, --xyz true, -x=true, --xyz=true
+
+### Requirements
+
+- `Option` & `Operand`: Required. Value type: `String!`
+- `MultipleOption` & `MultipleOperand`: Require `count` times. Value type: `[String]`
+- `OptionalOption` & `OptionalOperand`: Not required. Value type: `String?`
+- `DefaultedOption` & `DefaultedOperand`: Not required. Value type: `String`
+- `VariadicOption` & `VariadicOperand`: Required if `minCount` > 0. Value type: `[String]`
+
+`ParseError.missing` will be threw if requirements not match. 
+
+### Generic Types
+
+Any type confirm to `ArgumentConvertible` protocol (see Enum example above) can be used in `Generic T` versions. Value types: 
+
+- `OptionT` & `OperandT`: `T!`
+- `MultipleOptionT` & `MultipleOperandT`: [T]`
+- `OptionalOptionT` & `OptionalOperandT`: `T?`
+- `DefaultedOptionT` & `DefaultedOperandT`: `T`
+- `VariadicOptionT` & `VariadicOperandT`: `[T]`
+
+## Install 
+
+### Swift Package Manager: 
+
+Add to dependencies: 
+
+`.Package(url: "https://github.com/evan-liu/CommandArguments.git", majorVersion: 0, minor: 1)`
