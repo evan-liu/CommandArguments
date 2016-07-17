@@ -35,8 +35,8 @@ import Foundation
  */
 public protocol CommandArguments {
     
-    /// `Mirror` API requires `init()`
-    init()
+    /// Command name when print usage message
+    var commandName: String { get }
 }
 
 extension CommandArguments {
@@ -72,8 +72,17 @@ extension CommandArguments {
         try parseOperands(operands, withValues: operandValues)
     }
     
+}
+
+extension CommandArguments {
+    
+    /// Default command name when print usage message
+    public var commandName: String {
+        return "command"
+    }
+    
     /**
-     Parse usage string as: 
+     Parse usage string as:
      ````
      Usage: command [options] operands
      
@@ -82,12 +91,15 @@ extension CommandArguments {
      ...
      
      Options:
-       -f, --flag  Option usage
-       ...
+     -f, --flag  Option usage
+     ...
      
      ````
+     
+     - parameter commandName: Print name overriding `commandName` property
+     
      */
-    public func usage(commandName: String = "command") -> String {
+    public func usage(commandName: String? = nil) -> String {
         do {
             let (options, operands) = try parseFields()
             return parseUsage(commandName: commandName, options: options, operands: operands)
@@ -95,5 +107,4 @@ extension CommandArguments {
             return "Error: \(error)"
         }
     }
-    
 }

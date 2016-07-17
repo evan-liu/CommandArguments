@@ -65,9 +65,17 @@ extension CommandArguments {
             knownOperandNames.insert(name)
         }
         
-        // Parse options and operands
-        let fields = Mirror(reflecting: self).children.filter { $0.value is Parsable }
-        for (name, value) in fields {
+        // Parse fields from `Mirror` and `superclassMirror`s
+        func parseMirror(_ mirror: Mirror) -> [Mirror.Child] {
+            let children = mirror.children.filter { $0.value is Parsable }
+            if let superclassMirror = mirror.superclassMirror {
+                return parseMirror(superclassMirror) + children
+            }
+            return children
+        }
+        
+        // Parse options and operands from fields
+        for (name, value) in parseMirror(Mirror(reflecting: self)) {
             if value is OptionProtocol {
                 let option = value as! OptionProtocol
                 try checkOptionName(option.name)

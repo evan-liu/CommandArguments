@@ -3,6 +3,36 @@ import CommandArguments
 
 class CommandArgumentsTests: XCTestCase {
     
+    func testInheritance() {
+        
+        class Args1: CommandArguments {
+            var a = Flag()
+        }
+        
+        class Args2: Args1 {
+            var b = Flag()
+        }
+        
+        class Args3: Args2 {
+            var c = Flag()
+        }
+        
+        var args = Args3()
+        do {
+            try args.parse("-a -b -c")
+            XCTAssertTrue(args.a.value)
+            XCTAssertTrue(args.b.value)
+            XCTAssertTrue(args.c.value)
+        } catch {
+            XCTFail("\(error)")
+        }
+        
+        let usage = args.usage()
+        XCTAssert(usage.contains("-a"))
+        XCTAssert(usage.contains("-b"))
+        XCTAssert(usage.contains("-c"))
+    }
+    
     // ----------------------------------------
     // MARK: Operand Names
     // ----------------------------------------

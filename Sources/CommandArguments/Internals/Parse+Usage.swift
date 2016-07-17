@@ -2,14 +2,14 @@ import Foundation
 
 extension CommandArguments {
     
-    func parseUsage(commandName: String, options: [OptionProtocol], operands: [OperandProtocol]) -> String {
+    func parseUsage(commandName: String?, options: [OptionProtocol], operands: [OperandProtocol]) -> String {
         let hasOption = options.count > 0
         let hasOperand = operands.count > 0
         guard hasOption || hasOperand else {
             return "Error: no option or operand defined"
         }
         
-        var synopsis = "Usage: \(commandName)"
+        var synopsis = "Usage: \(commandName ?? self.commandName)"
         if hasOption {
             synopsis += " [options]"
         }
