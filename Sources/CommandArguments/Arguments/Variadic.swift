@@ -62,14 +62,14 @@ protocol VariadicArgumentProtocol: Parsable, Missable {
 
 extension VariadicArgumentProtocol {
     var isMissing: Bool {
-        if let minCount = minCount where minCount > value.count {
+        if let minCount = minCount, minCount > value.count {
             return true
         }
         return false
     }
 }
 
-class VariadicArgumentParser<Target: VariadicArgumentProtocol>: Parser {
+final class VariadicArgumentParser<Target: VariadicArgumentProtocol>: Parser {
     let target: Target
     init(target: Target) {
         self.target = target
@@ -77,7 +77,7 @@ class VariadicArgumentParser<Target: VariadicArgumentProtocol>: Parser {
     
     var parseCount = 0
     var canTakeValue: Bool {
-        if let maxCount = target.maxCount where maxCount > 0 {
+        if let maxCount = target.maxCount, maxCount > 0 {
             return parseCount < maxCount
         } else {
             return true

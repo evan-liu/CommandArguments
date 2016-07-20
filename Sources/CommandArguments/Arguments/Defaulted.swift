@@ -45,7 +45,7 @@ protocol DefaultedArgumentProtocol: Parsable {
     var value: Value { get set }
 }
 
-class DefaultedArgumentParser<Target: DefaultedArgumentProtocol>: Parser {
+final class DefaultedArgumentParser<Target: DefaultedArgumentProtocol>: Parser {
     let target: Target
     init(target: Target) {
         self.target = target

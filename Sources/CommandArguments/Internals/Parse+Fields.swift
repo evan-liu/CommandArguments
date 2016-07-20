@@ -43,7 +43,7 @@ extension CommandArguments {
         
         // Use filed name as default option names
         func checkFieldName(_ name: String?, ofOption option: inout OptionProtocol) {
-            guard let name = name where !name.isEmpty && !knownOptionNames.contains(name) else { return }
+            guard let name = name, !name.isEmpty && !knownOptionNames.contains(name) else { return }
             if name.characters.count == 1 {
                 if option.name.short == nil {
                     option.name.short = name
@@ -59,7 +59,7 @@ extension CommandArguments {
         
         // Use field name as default operand name
         func checkFieldName(_ name: String?, ofOperand operand: inout OperandProtocol) {
-            guard let name = name where !name.isEmpty && !knownOperandNames.contains(name) else { return }
+            guard let name = name, !name.isEmpty && !knownOperandNames.contains(name) else { return }
             guard operand.name == nil else { return }
             operand.name = name
             knownOperandNames.insert(name)

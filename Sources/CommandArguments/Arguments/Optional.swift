@@ -46,7 +46,7 @@ protocol OptionalArgumentProtocol: Parsable {
     var value: Value? { get set }
 }
 
-class OptionalArgumentParser<Target: OptionalArgumentProtocol>: Parser {
+final class OptionalArgumentParser<Target: OptionalArgumentProtocol>: Parser {
     let target: Target
     init(target: Target) {
         self.target = target

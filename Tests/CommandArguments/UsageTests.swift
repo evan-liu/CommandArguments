@@ -21,7 +21,7 @@ class UsageTests: XCTestCase {
         struct TestArgs: CommandArguments {
             var a = Option(usage: "a option")
             var bbbb = Option(usage: "bbbb option")
-            var c = Option(usage: "c--cc option", longName: "cc")
+            var c = Option(longName: "cc", usage: "c--cc option")
             var x = Operand(usage: "x")
             var y = Operand(usage: "y")
         }

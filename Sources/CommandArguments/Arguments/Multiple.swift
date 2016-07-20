@@ -58,7 +58,7 @@ extension MultipleArgumentProtocol {
     var isMissing: Bool { return value.count < count }
 }
 
-class MultipleArgumentParser<Target: MultipleArgumentProtocol>: Parser {
+final class MultipleArgumentParser<Target: MultipleArgumentProtocol>: Parser {
     let target: Target
     init(target: Target) {
         self.target = target

@@ -1,6 +1,6 @@
 import Foundation
 
-public class Flag {
+public final class Flag {
     public var value = false
     
     var name: OptionName
@@ -15,7 +15,7 @@ public class Flag {
 // MARK: Internal
 // ----------------------------------------
 extension Flag: OptionProtocol, Parsable {
-    class FlagParser: Parser {
+    final class FlagParser: Parser {
         let target: Flag
         init(target: Flag) {
             self.target = target

@@ -47,7 +47,7 @@ extension RequiredArgumentProtocol {
     var isMissing: Bool { return value == nil }
 }
 
-class RequiredArgumentParser<Target: RequiredArgumentProtocol>: Parser {
+final class RequiredArgumentParser<Target: RequiredArgumentProtocol>: Parser {
     let target: Target
     init(target: Target) {
         self.target = target
