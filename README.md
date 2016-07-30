@@ -2,9 +2,10 @@
 
 Strong typed arguments parsing library based on Swift reflection (`Mirror`) API. 
 
-[![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
-![Swift](https://img.shields.io/badge/swift-3.0--PREVIEW--3-green.svg)
 ![Platform](https://img.shields.io/badge/platform-macos%20%7C%20linux-lightgrey.svg)
+![Swift](https://img.shields.io/badge/swift-3.0--PREVIEW--3-yellowgreen.svg)
+[![Test Coverage](https://img.shields.io/badge/coverage-95%25-green.svg)](https://github.com/evan-liu/CommandArguments/tree/master/Tests)
+[![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
 
 ## Features
 
