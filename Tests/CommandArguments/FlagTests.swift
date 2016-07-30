@@ -3,6 +3,10 @@ import CommandArguments
 
 class FlagTests: XCTestCase {
 
+    static let allTests = [
+        ("testFlag", testFlag),
+    ]
+
     func testFlag() {
         struct TestArgs: CommandArguments {
             var a = Flag(longName: "aa")

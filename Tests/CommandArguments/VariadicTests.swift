@@ -3,6 +3,13 @@ import CommandArguments
 
 class VariadicTests: XCTestCase {
 
+    static let allTests = [
+        ("testVariadicOperand", testVariadicOperand),
+        ("testVariadicOperandThrows", testVariadicOperandThrows),
+        ("testVariadicOption", testVariadicOption),
+        ("testVariadicOptionThrows", testVariadicOptionThrows),
+    ]
+
     func testVariadicOperand() {
         struct TestArgs: CommandArguments {
             var a = Operand()

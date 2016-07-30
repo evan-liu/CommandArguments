@@ -3,6 +3,11 @@ import CommandArguments
 
 class DefaultedTests: XCTestCase {
 
+    static let allTests = [
+        ("testDefaultedOperand", testDefaultedOperand),
+        ("testDefaultedStringOption", testDefaultedStringOption),
+    ]
+
     func testDefaultedOperand() {
         struct TestArgs: CommandArguments {
             var a = Operand()

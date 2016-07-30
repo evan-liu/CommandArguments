@@ -1,7 +1,14 @@
 import XCTest
 import CommandArguments
 
-class MultiplepleTests: XCTestCase {
+class MultipleTests: XCTestCase {
+
+    static let allTests = [
+        ("testMultipleOperand", testMultipleOperand),
+        ("testMultipleOptionThrows", testMultipleOptionThrows),
+        ("testMultipleOption", testMultipleOption),
+        ("testMultipleOperandThrows", testMultipleOperandThrows),
+    ]
 
     func testMultipleOperand() {
         struct TestArgs: CommandArguments {

@@ -3,6 +3,13 @@ import CommandArguments
 
 class RequiredTests: XCTestCase {
 
+    static let allTests = [
+        ("testOption", testOption),
+        ("testOptionThrows", testOptionThrows),
+        ("testOperand", testOperand),
+        ("testOperandThrows", testOperandThrows),
+    ]
+
     func testOption() {
         struct TestArgs: CommandArguments {
             var a = Option(longName: "aa")

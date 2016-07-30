@@ -3,6 +3,11 @@ import CommandArguments
 
 class EnumTests: XCTestCase {
 
+    static let allTests = [
+        ("testEnumArguments", testEnumArguments),
+        ("testEnumArgumentsThrows", testEnumArgumentsThrows),
+    ]
+
     enum Platform: String, ArgumentConvertible {
         case iOS, watchOS, maxOS
     }

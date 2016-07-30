@@ -3,6 +3,11 @@ import CommandArguments
 
 class ParseTests: XCTestCase {
 
+    static let allTests = [
+        ("testCombinedShortOptions", testCombinedShortOptions),
+        ("testOptionStopper", testOptionStopper),
+    ]
+
     func testCombinedShortOptions() {
         struct TestArgs: CommandArguments {
             var a = Flag()

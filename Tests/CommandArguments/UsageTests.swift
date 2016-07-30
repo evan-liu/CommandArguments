@@ -3,6 +3,20 @@ import CommandArguments
 
 class UsageTests: XCTestCase {
 
+    static let allTests = [
+        ("testTypeError", testTypeError),
+        ("testEmptyType", testEmptyType),
+        ("testUsage", testUsage),
+        ("testOperandOnly", testOperandOnly),
+        ("testOptionOnly", testOptionOnly),
+        ("testMultipleOperand", testMultipleOperand),
+        ("testOptionalOperand", testOptionalOperand),
+        ("testVariadicOperand", testVariadicOperand),
+        ("testTrainingOperand", testTrainingOperand),
+        ("testShortNameOnlyOption", testShortNameOnlyOption),
+        ("testLongNameOnlyOption", testLongNameOnlyOption),
+    ]
+
     func testTypeError() {
         struct TestArgs: CommandArguments {
             var a = Option(shortName: "b")

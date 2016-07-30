@@ -3,6 +3,12 @@ import CommandArguments
 
 class TrailingOperandTests: XCTestCase {
 
+    static let allTests = [
+        ("testTrailingOperand", testTrailingOperand),
+        ("testTrailingMultiOperand", testTrailingMultiOperand),
+        ("testTrailingOperandThrows", testTrailingOperandThrows),
+    ]
+
     func testTrailingOperand() {
         struct TestArgs: CommandArguments {
             var a = VariadicOperand()
