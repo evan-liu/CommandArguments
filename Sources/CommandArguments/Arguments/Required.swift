@@ -70,13 +70,13 @@ extension RequiredArgumentProtocol {
 }
 
 extension OptionT: OptionProtocol, RequiredArgumentProtocol {
-    var missingError: ErrorProtocol {
+    var missingError: Error {
         return ParseError.missing("Missing or invalid value for option \(missingName)")
     }
 }
 
 extension OperandT: OperandProtocol, RequiredArgumentProtocol {
-    var missingError: ErrorProtocol {
+    var missingError: Error {
         return ParseError.missing("Missing or invalid value for operand \(missingName)")
     }
 }

@@ -87,13 +87,13 @@ extension MultipleArgumentProtocol {
 }
 
 extension MultipleOptionT: OptionProtocol, MultipleArgumentProtocol {
-    var missingError: ErrorProtocol {
+    var missingError: Error {
         return ParseError.missing("Missing or invalid values (need \(count)) for option \(missingName)")
     }
 }
 
 extension MultipleOperandT: OperandProtocol, MultipleArgumentProtocol {
-    var missingError: ErrorProtocol {
+    var missingError: Error {
         return ParseError.missing("Missing or invalid values (need \(count)) for operand \(missingName)")
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Errors when parsing the arguments type
-public enum TypeError: ErrorProtocol {
+public enum TypeError: Error {
     
     /// Throws when option field has no names and field name is used by other option
     case missingOptionName(String?)
@@ -20,7 +20,7 @@ public enum TypeError: ErrorProtocol {
 }
 
 /// Errors when parsing arguments
-public enum ParseError: ErrorProtocol {
+public enum ParseError: Error {
     
     /// Throws when parsing an unknown option
     case invalidOption(String)

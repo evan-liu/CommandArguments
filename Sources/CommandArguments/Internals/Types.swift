@@ -29,7 +29,7 @@ extension OperandProtocol {
 protocol Missable {
     
     var isMissing: Bool { get }
-    var missingError: ErrorProtocol { get }
+    var missingError: Error { get }
     
 }
 

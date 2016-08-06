@@ -102,13 +102,13 @@ extension VariadicArgumentProtocol {
 }
 
 extension VariadicOptionT: OptionProtocol, VariadicArgumentProtocol {
-    var missingError: ErrorProtocol {
+    var missingError: Error {
         return ParseError.missing("Missing or invalid values (at least \(minCount)) for option \(missingName)")
     }
 }
 
 extension VariadicOperandT: OperandProtocol, VariadicArgumentProtocol {
-    var missingError: ErrorProtocol {
+    var missingError: Error {
         return ParseError.missing("Missing or invalid values (at least \(minCount)) for operand \(missingName)")
     }
 }
