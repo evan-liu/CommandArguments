@@ -124,6 +124,6 @@ private extension OptionProtocol {
 
 private extension String {
     func appendingSpace(toLength length: Int) -> String {
-        return appending(String(repeating: " " as Character, count: length - characters.count))
+        return appending(String(repeating: " ", count: length - characters.count))
     }
 }
