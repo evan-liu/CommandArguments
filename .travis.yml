@@ -1,7 +1,7 @@
 
 os:
-  - linux
   - osx
+  - linux
 language: generic
 sudo: required
 dist: trusty

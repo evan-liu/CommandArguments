@@ -1,7 +1,7 @@
 # CommandArguments
 
 ![Platform](https://img.shields.io/badge/platform-macos%20%7C%20linux-lightgrey.svg)
-[![Swift](https://img.shields.io/badge/swift-3.0-yellowgreen.svg)](https://swift.org/download/#previews)
+[![Swift](https://img.shields.io/badge/swift-3.0-yellowgreen.svg)](https://swift.org/download/#releases)
 [![Codecov](https://img.shields.io/codecov/c/github/evan-liu/CommandArguments.svg)](https://codecov.io/gh/evan-liu/CommandArguments)
 [![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
 
