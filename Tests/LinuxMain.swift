@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import CommandArgumentsTestSuite
+@testable import CommandArgumentsTests
 
 XCTMain([
     testCase(CommandArgumentsTests.allTests),
