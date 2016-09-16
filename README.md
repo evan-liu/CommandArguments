@@ -1,6 +1,6 @@
 # CommandArguments
 
-![Platform](https://img.shields.io/badge/platform-macos%20%7C%20linux-lightgrey.svg)
+[![Platform](https://img.shields.io/badge/platform-macos%20%7C%20linux-lightgrey.svg)](https://travis-ci.org/evan-liu/CommandArguments)
 [![Swift](https://img.shields.io/badge/swift-3.0-yellowgreen.svg)](https://swift.org/download/#releases)
 [![Codecov](https://img.shields.io/codecov/c/github/evan-liu/CommandArguments.svg)](https://codecov.io/gh/evan-liu/CommandArguments)
 [![Build Status](https://travis-ci.org/evan-liu/CommandArguments.svg)](https://travis-ci.org/evan-liu/CommandArguments)
@@ -22,7 +22,7 @@ struct BuildArguments: CommandArguments {
 
 var buildArgs = BuildArguments()
 do {
-    try buildArgs.parse(Process.arguments.dropFirst())
+    try buildArgs.parse(ProcessInfo.processInfo.arguments.dropFirst())
 } catch {
     print(error)
 }
@@ -51,7 +51,7 @@ struct DeployArguments: CommandArguments {
 
 var deployArgs = DeployArguments()
 do {
-    try deployArgs.parse(Process.arguments, from: 1)
+    try deployArgs.parse(ProcessInfo.processInfo.arguments, from: 1)
 } catch {
     print(error)
 }
